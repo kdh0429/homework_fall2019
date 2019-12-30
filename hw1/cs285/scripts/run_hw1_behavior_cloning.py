@@ -50,6 +50,8 @@ class BC_Trainer(object):
             relabel_with_expert=self.params['do_dagger'],
             expert_policy=self.loaded_expert_policy,
         )
+        
+        self.rl_trainer.eval_render(self.rl_trainer.agent.actor)
 
 
 def main():
@@ -81,6 +83,7 @@ def main():
     parser.add_argument('--which_gpu', type=int, default=0)
     parser.add_argument('--max_replay_buffer_size', type=int, default=1000000)
     parser.add_argument('--seed', type=int, default=1)
+    parser.add_argument('--use_wandb', type=int, default=0)
     args = parser.parse_args()
 
     # convert args to dictionary

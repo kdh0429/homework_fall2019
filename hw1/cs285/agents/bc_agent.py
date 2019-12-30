@@ -17,7 +17,7 @@ class BCAgent(BaseAgent):
         self.agent_params = agent_params
 
         # actor/policy
-        self.actor = MLPPolicySL(sess,
+        self.actor = MLPPolicySL(self.sess,
                                self.agent_params['ac_dim'],
                                self.agent_params['ob_dim'],
                                self.agent_params['n_layers'],

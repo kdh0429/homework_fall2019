@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 import gym
 import os
+import wandb
 
 from cs285.infrastructure.utils import *
 from cs285.infrastructure.tf_utils import create_tf_session
@@ -26,6 +27,28 @@ class RL_Trainer(object):
         self.params = params
         self.logger = Logger(self.params['logdir'])
         self.sess = create_tf_session(self.params['use_gpu'], which_gpu=self.params['which_gpu'])
+
+        if self.params['use_wandb'] == 1:
+            wandb.init(project="cs285_hw1", tensorboard=False)
+            wandb.config.expert_policy_file = self.params['expert_policy_file']
+            wandb.config.env_name = self.params['env_name']
+            wandb.config.exp_name = self.params['exp_name']
+            wandb.config.do_dagger = self.params['do_dagger']
+            wandb.config.ep_len = self.params['ep_len']
+            wandb.config.num_agent_train_steps_per_iter = self.params['num_agent_train_steps_per_iter']
+            wandb.config.n_iter = self.params['n_iter']
+            wandb.config.batch_size = self.params['batch_size']
+            wandb.config.eval_batch_size = self.params['eval_batch_size']
+            wandb.config.train_batch_size = self.params['train_batch_size']
+            wandb.config.n_layers = self.params['n_layers']
+            wandb.config.size = self.params['size']
+            wandb.config.learning_rate = self.params['learning_rate']
+            wandb.config.video_log_freq = self.params['video_log_freq']
+            wandb.config.scalar_log_freq = self.params['scalar_log_freq']
+            wandb.config.use_gpu = self.params['use_gpu']
+            wandb.config.which_gpu = self.params['which_gpu']
+            wandb.config.max_replay_buffer_size = self.params['max_replay_buffer_size']
+            wandb.config.seed = self.params['seed']
 
         # Set random seeds
         seed = self.params['seed']
@@ -72,7 +95,7 @@ class RL_Trainer(object):
 
         ## TODO initialize all of the TF variables (that were created by agent, etc.)
         ## HINT: use global_variables_initializer
-        TODO
+        self.sess.run(tf.global_variables_initializer())
 
     def run_training_loop(self, n_iter, collect_policy, eval_policy,
                         initial_expertdata=None, relabel_with_expert=False,
@@ -156,12 +179,18 @@ class RL_Trainer(object):
                 # ``` return loaded_paths, 0, None ```
 
                 # collect data, batch_size is the number of transitions you want to collect.
+        if itr == 0:
+            with open(load_initial_expertdata,'rb') as f:
+                paths = pickle.load(f)
+            envsteps_this_batch = 0
+            train_video_paths = None
+            return paths, envsteps_this_batch, train_video_paths
 
         # TODO collect data to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
         print("\nCollecting data to be used for training...")
-        paths, envsteps_this_batch = TODO
+        paths, envsteps_this_batch = sample_trajectories(self.env, collect_policy, batch_size, self.params['ep_len'])
 
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
@@ -181,11 +210,12 @@ class RL_Trainer(object):
             # TODO sample some data from the data buffer
             # HINT1: use the agent's sample function
             # HINT2: how much data = self.params['train_batch_size']
-            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = TODO
+            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.replay_buffer.sample_random_data(self.params['train_batch_size'])
 
             # TODO use the sampled data for training
             # HINT: use the agent's train function
             # HINT: print or plot the loss for debugging!
+            self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
 
     def do_relabel_with_expert(self, expert_policy, paths):
         print("\nRelabelling collected observations with labels from an expert policy...")
@@ -193,7 +223,8 @@ class RL_Trainer(object):
         # TODO relabel collected obsevations (from our policy) with labels from an expert policy
         # HINT: query the policy (using the get_action function) with paths[i]["observation"]
         # and replace paths[i]["action"] with these expert labels
-
+        for path in paths:
+            path["action"] = expert_policy.get_action(path["observation"])
         return paths
 
     ####################################
@@ -249,6 +280,9 @@ class RL_Trainer(object):
                 self.initial_return = np.mean(train_returns)
             logs["Initial_DataCollection_AverageReturn"] = self.initial_return
 
+            if self.params['use_wandb'] == 1:
+                wandb.log(logs)
+
             # perform the logging
             for key, value in logs.items():
                 print('{} : {}'.format(key, value))
@@ -256,3 +290,17 @@ class RL_Trainer(object):
             print('Done logging...\n\n')
 
             self.logger.flush()
+
+    def eval_render(self,eval_policy):
+        ob = self.env.reset() # HINT: should be the output of resetting the env
+        step = 0
+        while True:
+            self.env.render()
+            ac = eval_policy.get_action(ob) # HINT: query the policy's get_action function
+            ac = ac[0]
+            ob, rew, done, _ = self.env.step(ac)
+            step += 1
+            if done or step > 1000:
+                step = 0
+                ob = self.env.reset() # HINT: should be the output of resetting the env
+            
