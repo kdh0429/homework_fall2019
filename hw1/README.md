@@ -7,3 +7,5 @@ providing results, report the mean and standard deviation of the return over mul
 table, and state which task was used. Be sure to set up a fair comparison, in terms of network size,
 amount of data, and number of training iterations, and provide these details (and any others you feel
 are appropriate) in the table caption.
+
+![Alt text](./pictures/Ant_BC.png)
