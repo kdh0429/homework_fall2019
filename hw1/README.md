@@ -17,7 +17,7 @@ Average return of expert is 10344.518(Initial_DataCollection_AverageReturn), but
 ### 3. Experiment with one set of hyperparameter that affects the performance of the behavioral cloning agent, such as the number of demonstrations, the number of training epochs, the variance of the expert policy, or something that you come up with yourself. For one of the tasks used in the previous question, show a graph of how the BC agent’s performance varies with the value of this hyperparameter, and state the hyperparameter and a brief rationale for why you chose it in the caption for the graph.
 
 
-![Alt text](./pictures/Return_Iteration.jpg "Mean and Standard Deviation of Return with Training Iteration")
+![Alt text](./pictures/Retrun_Iteration.jpg "Mean and Standard Deviation of Return with Training Iteration")
 Figure above is the mean and standard deviation of ant behavior cloning agent return as training iteration changes. As the training iteration changes from 1000 to 2400, return tends to increase. At iteration 2400, the mean return is peak and std is lowest. As iteration increases from 2400, it seems the agent has been overfitted to training policy.
 
 ---------------------------------------
