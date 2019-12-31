@@ -8,13 +8,13 @@ table, and state which task was used. Be sure to set up a fair comparison, in te
 amount of data, and number of training iterations, and provide these details (and any others you feel
 are appropriate) in the table caption.**
 
-![Alt text](./pictures/Ant_BC.png, "Behavior Cloning of Ant")
+![Alt text](./pictures/Ant_BC.png "Behavior Cloning of Ant")
 
  The result of behavior cloning with 'Ant-v2' environent is shown as above. The only change from default setting is that 'num_agent_train_steps_per_iter' is set as 2000.
 <br> 
 Average return of expert is 4713.653(Initial_DataCollection_AverageReturn) and the policy trained with behavior cloning accomplishes average return of 3613.055 with standand devidation of 1395.815(from 5 evaluation episodes).
 
-![Alt text](./pictures/Humanoid_BC.png, "Behavior Cloning of Humanoid")
+![Alt text](./pictures/Humanoid_BC.png "Behavior Cloning of Humanoid")
 
  The result of behavior cloning with 'Humanoid-v2' environent is shown as above. Size of MLP is changed from 64 to 128 compared to 'Ant-v2' environment, considering higher dimension of observation and action space. 'num_agent_train_steps_per_iter' is set as 2000 as before.
 <br> 
