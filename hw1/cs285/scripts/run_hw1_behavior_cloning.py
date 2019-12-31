@@ -77,13 +77,14 @@ def main():
     parser.add_argument('--size', type=int, default=64)  # width of each layer, of policy to be learned
     parser.add_argument('--learning_rate', '-lr', type=float, default=5e-3)  # LR for supervised learning
 
-    parser.add_argument('--video_log_freq', type=int, default=5)
     parser.add_argument('--scalar_log_freq', type=int, default=1)
     parser.add_argument('--use_gpu', action='store_true')
     parser.add_argument('--which_gpu', type=int, default=0)
     parser.add_argument('--max_replay_buffer_size', type=int, default=1000000)
     parser.add_argument('--seed', type=int, default=1)
+
     parser.add_argument('--use_wandb', type=int, default=0)
+    parser.add_argument('--n_eval', type=int, default=5)
     args = parser.parse_args()
 
     # convert args to dictionary

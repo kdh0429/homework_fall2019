@@ -9,7 +9,6 @@ import wandb
 
 from cs285.infrastructure.utils import *
 from cs285.infrastructure.tf_utils import create_tf_session
-from cs285.infrastructure.logger import Logger
 
 # params for saving rollout videos to tensorboard
 MAX_NVIDEO = 2
@@ -25,30 +24,7 @@ class RL_Trainer(object):
 
         # Get params, create logger, create TF session
         self.params = params
-        self.logger = Logger(self.params['logdir'])
         self.sess = create_tf_session(self.params['use_gpu'], which_gpu=self.params['which_gpu'])
-
-        if self.params['use_wandb'] == 1:
-            wandb.init(project="cs285_hw1", tensorboard=False)
-            wandb.config.expert_policy_file = self.params['expert_policy_file']
-            wandb.config.env_name = self.params['env_name']
-            wandb.config.exp_name = self.params['exp_name']
-            wandb.config.do_dagger = self.params['do_dagger']
-            wandb.config.ep_len = self.params['ep_len']
-            wandb.config.num_agent_train_steps_per_iter = self.params['num_agent_train_steps_per_iter']
-            wandb.config.n_iter = self.params['n_iter']
-            wandb.config.batch_size = self.params['batch_size']
-            wandb.config.eval_batch_size = self.params['eval_batch_size']
-            wandb.config.train_batch_size = self.params['train_batch_size']
-            wandb.config.n_layers = self.params['n_layers']
-            wandb.config.size = self.params['size']
-            wandb.config.learning_rate = self.params['learning_rate']
-            wandb.config.video_log_freq = self.params['video_log_freq']
-            wandb.config.scalar_log_freq = self.params['scalar_log_freq']
-            wandb.config.use_gpu = self.params['use_gpu']
-            wandb.config.which_gpu = self.params['which_gpu']
-            wandb.config.max_replay_buffer_size = self.params['max_replay_buffer_size']
-            wandb.config.seed = self.params['seed']
 
         # Set random seeds
         seed = self.params['seed']
@@ -64,7 +40,7 @@ class RL_Trainer(object):
         self.env.seed(seed)
 
         # Maximum length for episodes
-        self.params['ep_len'] = self.params['ep_len'] or self.env.spec.max_episode_steps
+        self.params['ep_len'] = self.env.spec.max_episode_steps
 
         # Is this env continuous, or self.discrete?
         discrete = isinstance(self.env.action_space, gym.spaces.Discrete)
@@ -81,6 +57,29 @@ class RL_Trainer(object):
             self.fps = 1/self.env.model.opt.timestep
         else:
             self.fps = self.env.env.metadata['video.frames_per_second']
+
+
+        if self.params['use_wandb'] == 1:
+            wandb.init(project="cs285_hw1", tensorboard=False)
+            wandb.config.expert_policy_file = self.params['expert_policy_file']
+            wandb.config.env_name = self.params['env_name']
+            wandb.config.exp_name = self.params['exp_name']
+            wandb.config.do_dagger = self.params['do_dagger']
+            wandb.config.ep_len = self.params['ep_len']
+            wandb.config.num_agent_train_steps_per_iter = self.params['num_agent_train_steps_per_iter']
+            wandb.config.n_iter = self.params['n_iter']
+            wandb.config.batch_size = self.params['batch_size']
+            wandb.config.eval_batch_size = self.params['eval_batch_size']
+            wandb.config.train_batch_size = self.params['train_batch_size']
+            wandb.config.n_layers = self.params['n_layers']
+            wandb.config.size = self.params['size']
+            wandb.config.learning_rate = self.params['learning_rate']
+            wandb.config.scalar_log_freq = self.params['scalar_log_freq']
+            wandb.config.use_gpu = self.params['use_gpu']
+            wandb.config.which_gpu = self.params['which_gpu']
+            wandb.config.max_replay_buffer_size = self.params['max_replay_buffer_size']
+            wandb.config.seed = self.params['seed']
+            wandb.config.n_eval = self.params['n_eval']
 
         #############
         ## AGENT
@@ -117,12 +116,6 @@ class RL_Trainer(object):
         for itr in range(n_iter):
             print("\n\n********** Iteration %i ************"%itr)
 
-            # decide if videos should be rendered/logged at this iteration
-            if itr % self.params['video_log_freq'] == 0 and self.params['video_log_freq'] != -1:
-                self.log_video = True
-            else:
-                self.log_video = False
-
             # decide if metrics should be logged
             if itr % self.params['scalar_log_freq'] == 0:
                 self.log_metrics = True
@@ -133,7 +126,7 @@ class RL_Trainer(object):
             training_returns = self.collect_training_trajectories(itr,
                                 initial_expertdata, collect_policy,
                                 self.params['batch_size']) ## TODO implement this function below
-            paths, envsteps_this_batch, train_video_paths = training_returns
+            paths, envsteps_this_batch = training_returns
             self.total_envsteps += envsteps_this_batch
 
             # relabel the collected obs with actions from a provided expert policy
@@ -147,11 +140,11 @@ class RL_Trainer(object):
             self.train_agent() ## TODO implement this function below
 
             # log/save
-            if self.log_video or self.log_metrics:
+            if self.log_metrics:
 
                 # perform logging
                 print('\nBeginning logging procedure...')
-                self.perform_logging(itr, paths, eval_policy, train_video_paths)
+                self.perform_logging(itr, paths, eval_policy)
 
                 # save policy
                 print('\nSaving agent\'s actor...')
@@ -183,8 +176,7 @@ class RL_Trainer(object):
             with open(load_initial_expertdata,'rb') as f:
                 paths = pickle.load(f)
             envsteps_this_batch = 0
-            train_video_paths = None
-            return paths, envsteps_this_batch, train_video_paths
+            return paths, envsteps_this_batch
 
         # TODO collect data to be used for training
         # HINT1: use sample_trajectories from utils
@@ -192,15 +184,7 @@ class RL_Trainer(object):
         print("\nCollecting data to be used for training...")
         paths, envsteps_this_batch = sample_trajectories(self.env, collect_policy, batch_size, self.params['ep_len'])
 
-        # collect more rollouts with the same policy, to be saved as videos in tensorboard
-        # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
-        train_video_paths = None
-        if self.log_video:
-            print('\nCollecting train rollouts to be used for saving videos...')
-            ## TODO look in utils and implement sample_n_trajectories
-            train_video_paths = sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
-
-        return paths, envsteps_this_batch, train_video_paths
+        return paths, envsteps_this_batch
 
 
     def train_agent(self):
@@ -230,23 +214,11 @@ class RL_Trainer(object):
     ####################################
     ####################################
 
-    def perform_logging(self, itr, paths, eval_policy, train_video_paths):
+    def perform_logging(self, itr, paths, eval_policy):
 
         # collect eval trajectories, for logging
         print("\nCollecting data for eval...")
-        eval_paths, eval_envsteps_this_batch = sample_trajectories(self.env, eval_policy, self.params['eval_batch_size'], self.params['ep_len'])
-
-        # save eval rollouts as videos in tensorboard event file
-        if self.log_video and train_video_paths != None:
-            print('\nCollecting video rollouts eval')
-            eval_video_paths = sample_n_trajectories(self.env, eval_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
-
-            #save train/eval videos
-            print('\nSaving train rollouts as videos...')
-            self.logger.log_paths_as_videos(train_video_paths, itr, fps=self.fps, max_videos_to_save=MAX_NVIDEO,
-                                            video_title='train_rollouts')
-            self.logger.log_paths_as_videos(eval_video_paths, itr, fps=self.fps,max_videos_to_save=MAX_NVIDEO,
-                                             video_title='eval_rollouts')
+        eval_paths = sample_n_trajectories(self.env, eval_policy, self.params['n_eval'], self.params['ep_len'])
 
         # save eval metrics
         if self.log_metrics:
@@ -283,13 +255,7 @@ class RL_Trainer(object):
             if self.params['use_wandb'] == 1:
                 wandb.log(logs)
 
-            # perform the logging
-            for key, value in logs.items():
-                print('{} : {}'.format(key, value))
-                self.logger.log_scalar(value, key, itr)
             print('Done logging...\n\n')
-
-            self.logger.flush()
 
     def eval_render(self,eval_policy):
         ob = self.env.reset() # HINT: should be the output of resetting the env
@@ -300,7 +266,7 @@ class RL_Trainer(object):
             ac = ac[0]
             ob, rew, done, _ = self.env.step(ac)
             step += 1
-            if done or step > 1000:
+            if done or step > self.params['ep_len']:
                 step = 0
                 ob = self.env.reset() # HINT: should be the output of resetting the env
             
