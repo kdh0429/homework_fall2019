@@ -50,8 +50,8 @@ class BC_Trainer(object):
             relabel_with_expert=self.params['do_dagger'],
             expert_policy=self.loaded_expert_policy,
         )
-        
-        self.rl_trainer.eval_render(self.rl_trainer.agent.actor)
+        if self.params['render_after_training'] == 1:
+            self.rl_trainer.eval_render(self.rl_trainer.agent.actor)
 
 
 def main():
@@ -85,6 +85,7 @@ def main():
 
     parser.add_argument('--use_wandb', type=int, default=0)
     parser.add_argument('--n_eval', type=int, default=5)
+    parser.add_argument('--render_after_training', type=int, default=0)
     args = parser.parse_args()
 
     # convert args to dictionary
