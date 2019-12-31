@@ -8,4 +8,4 @@ table, and state which task was used. Be sure to set up a fair comparison, in te
 amount of data, and number of training iterations, and provide these details (and any others you feel
 are appropriate) in the table caption.
 
-![Alt text](/home/kim/Pictures/Ang_BC.png "Behavior Cloning of Ant")
+![Ant_BC](/home/kim/Pictures/Ant_BC.png "Behavior Cloning of Ant")
