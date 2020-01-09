@@ -52,8 +52,10 @@ class RL_Trainer(object):
         ac_dim = self.env.action_space.n if discrete else self.env.action_space.shape[0]
         self.params['agent_params']['ac_dim'] = ac_dim
         self.params['agent_params']['ob_dim'] = ob_dim
+        print("******************************************************************")
         print("Action Dimension: ", self.params['agent_params']['ac_dim'])
         print("Observation Dimension: ", self.params['agent_params']['ob_dim'])
+        print("******************************************************************")
 
         if self.params['use_wandb'] == 1:
             wandb.init(project="cs285_hw2", tensorboard=False)
@@ -114,9 +116,11 @@ class RL_Trainer(object):
                 self.log_metrics = False
 
             # collect trajectories, to be used for training
+            st = time.time()
             training_returns = self.collect_training_trajectories(itr,
                                 initial_expertdata, collect_policy,
                                 self.params['batch_size'])
+            print("Sameple Time: ", time.time()- st)
             paths, envsteps_this_batch = training_returns
             self.total_envsteps += envsteps_this_batch
 

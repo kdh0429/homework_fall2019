@@ -92,21 +92,19 @@ class PGAgent(BaseAgent):
 
         # Case 1: trajectory-based PG 
         if not self.reward_to_go:
-            
             # TODO: Estimate the Q value Q^{pi}(s_t, a_t) using rewards from that entire trajectory
             # HINT1: value of each point (t) = total discounted reward summed over the entire trajectory (from 0 to T-1)
                 # In other words, q(s_t, a_t) = sum_{t'=0}^{T-1} gamma^t' r_{t'}
             # Hint3: see the helper functions at the bottom of this file
-            q_values = np.concatenate([self._discounted_return(r) for r in rews_list])
+            q_values = np.concatenate([self._discounted_return(r) for r in rews_list]) # N개(Not fixed) trajectory들의 q value
 
         # Case 2: reward-to-go PG 
         else:
-
             # TODO: Estimate the Q value Q^{pi}(s_t, a_t) as the reward-to-go
             # HINT1: value of each point (t) = total discounted reward summed over the remainder of that trajectory (from t to T-1)
                 # In other words, q(s_t, a_t) = sum_{t'=t}^{T-1} gamma^(t'-t) * r_{t'}
             # Hint3: see the helper functions at the bottom of this file
-            q_values = np.concatenate([self._discounted_cumsum(r) for r in rews_list])
+            q_values = np.concatenate([self._discounted_cumsum(r) for r in rews_list]) # N개(Not fixed) trajectory들의 reward to go
 
         return q_values
 
@@ -120,9 +118,10 @@ class PGAgent(BaseAgent):
         # HINT1: pass obs into the neural network that you're using to learn the baseline
             # extra hint if you're stuck: see your actor's run_baseline_prediction
         # HINT2: advantage should be [Q-b]
+        # 여기서 NN은 baseline의 분산의 정도(?)를 학습. 이 baseline은 학습 시 single trajectory가 아니라 N개(Not fixed) trajectory들의 평균을 사용. 1개 trajectory를 사용하여 baseline을 구하는 vanilla PG와 여태 모든 trajectory들을 학습하여 baseline을 구하는 actor-acritic의 중간처럼 보임.
         if self.nn_baseline:
-            b_n_unnormalized = self.actor.run_baseline_prediction(obs)
-            b_n = b_n_unnormalized * np.std(q_values) + np.mean(q_values)
+            b_n_unnormalized = self.actor.run_baseline_prediction(obs) 
+            b_n = b_n_unnormalized * np.std(q_values) + np.mean(q_values)  # Question : If advantage is not normalized, what does it mean by multiplying with std? Should it be used with self.standardize_advantege option?
             adv_n = q_values - b_n
 
         # Else, just set the advantage to [Q]

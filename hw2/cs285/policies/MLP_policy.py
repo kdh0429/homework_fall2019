@@ -66,6 +66,7 @@ class MLPPolicy(BasePolicy):
             self.parameters = (mean, logstd)
 
     def build_action_sampling(self):
+        # Policy가 Gaussian Policy라고 가정. CS285 Lecture 5 12p Example: Gaussian Policies. 근데 여기서는 variance 0? (logstd = tf.zeros ...)
         if self.discrete:
             logits_na = self.parameters
             self.sample_ac = tf.squeeze(tf.multinomial(logits_na, num_samples=1), axis=1) # 다항분포로부터 sampling
@@ -197,6 +198,8 @@ class MLPPolicyPG(MLPPolicy):
             # to get [Q_t - b_t]
         # HINT4: don't forget that we need to MINIMIZE this self.loss
             # but the equation above is something that should be maximized
+
+        # CS285 Lecture 5 Policy Gradient with automatic differentiation 참고
         negative_likelihood = -self.logprob_n
         weighted_negative_likelihood = tf.multiply(negative_likelihood, self.adv_n)
         self.loss = tf.reduce_sum(weighted_negative_likelihood)

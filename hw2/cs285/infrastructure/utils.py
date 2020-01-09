@@ -1,6 +1,5 @@
 import numpy as np
 import time
-
 ############################################
 ############################################
 
@@ -13,21 +12,7 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     while True:
-
-        # render image of the simulated env
-        if render:
-            if 'rgb_array' in render_mode:
-                if hasattr(env, 'sim'):
-                    if 'track' in env.env.model.camera_names:
-                        image_obs.append(env.sim.render(camera_name='track', height=500, width=500)[::-1])
-                    else:
-                        image_obs.append(env.sim.render(height=500, width=500)[::-1])
-                else:
-                    image_obs.append(env.render(mode=render_mode))
-            if 'human' in render_mode:
-                env.render(mode=render_mode)
-                time.sleep(env.model.opt.timestep)
-
+        
         # use the most recent ob to decide what to do
         obs.append(ob)
         ac = policy.get_action(ob) # TODO: GETTHIS from HW1
@@ -68,7 +53,7 @@ def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, ren
     paths = []
     for num_traj in range(ntraj):
         paths.append(sample_trajectory(env, policy, max_path_length, render, render_mode))
-
+        
     return paths
 
 ############################################
