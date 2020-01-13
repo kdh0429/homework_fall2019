@@ -18,6 +18,7 @@ def sample_trajectory(env, policy, max_path_length, num_worker=1, render=False, 
         rewards.append([])
         next_obs.append([])
         terminals.append([])
+        image_obs.append([])
 
     steps = 0
     rollout_done = [False for _ in range(num_worker)]
@@ -26,8 +27,9 @@ def sample_trajectory(env, policy, max_path_length, num_worker=1, render=False, 
         # use the most recent ob to decide what to do
         ac = policy.get_action(ob) # TODO: GETTHIS from HW1
         for i in range(num_worker):
-            obs[i].append(ob[i])
-            acs[i].append(ac[i])
+            if rollout_done[i] is False:
+                obs[i].append(ob[i])
+                acs[i].append(ac[i])
         #ac = ac[0]
         #acs.append(ac)
 
@@ -41,30 +43,16 @@ def sample_trajectory(env, policy, max_path_length, num_worker=1, render=False, 
         # Note that the rollout can end due to done, or due to max_path_length
         
         for i in range(num_worker):
-            next_obs[i].append(ob[i])
-            rewards[i].append(rew[i])
-            terminals[i].append(done[i] or (steps > max_path_length))
             if rollout_done[i] is False:
+                next_obs[i].append(ob[i])
+                rewards[i].append(rew[i])
                 rollout_done[i] = done[i] or (steps > max_path_length) # TODO: GETTHIS from HW1
-                
-
-        obs_trajectories, acs_trajectories, rewards_trajectories, next_obs_trajectories, terminals_trajectories, image_obs_trajectories = [], [], [], [], [], []
+                terminals[i].append(rollout_done[i])
 
         if all(rollout_done):
-            for i in range(num_worker):
-                for j in range(len(obs[i])):
-                    obs_trajectories.append(obs[i][j])
-                for j in range(len(acs[i])):
-                    acs_trajectories.append(acs[i][j])
-                for j in range(len(rewards[i])):
-                    rewards_trajectories.append(rewards[i][j])
-                for j in range(len(next_obs[i])):
-                    next_obs_trajectories.append(next_obs[i][j])
-                for j in range(len(terminals[i])):
-                    terminals_trajectories.append(terminals[i][j])    
             break
-        
-    return Path(obs_trajectories, image_obs_trajectories, acs_trajectories, rewards_trajectories, next_obs_trajectories, terminals_trajectories)
+                
+    return [Path(obs[i], image_obs[i], acs[i], rewards[i], next_obs[i], terminals[i]) for i in range(num_worker)]
 
 def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, num_worker=1, render=False, render_mode=('rgb_array'), ):
 
@@ -72,8 +60,9 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, n
     paths = []
     while timesteps_this_batch < min_timesteps_per_batch:
         this_batch_path = sample_trajectory(env, policy, max_path_length, num_worker)
-        paths.append(this_batch_path)
-        timesteps_this_batch += get_pathlength(this_batch_path)
+        for i in range(num_worker):
+            paths.append(this_batch_path[i])
+            timesteps_this_batch += get_pathlength(this_batch_path[i])
     print("Training batch size: ", timesteps_this_batch)
     return paths, timesteps_this_batch
 
@@ -81,8 +70,9 @@ def sample_n_trajectories(env, policy, ntraj, max_path_length, num_worker=1, ren
     
     paths = []
     for num_traj in range(ntraj):
-        paths.append(sample_trajectory(env, policy, max_path_length, num_worker, render, render_mode))
-        
+        path = sample_trajectory(env, policy, max_path_length, num_worker, render, render_mode)
+        for i in range(num_worker):
+            paths.append(path[i])
     return paths
 
 ############################################
