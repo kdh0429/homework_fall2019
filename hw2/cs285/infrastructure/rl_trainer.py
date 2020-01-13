@@ -199,7 +199,7 @@ class RL_Trainer(object):
 
         # collect eval trajectories, for logging
         print("\nCollecting data for eval...")
-        eval_paths = sample_n_trajectories(self.env, eval_policy, self.params['n_eval'], self.params['ep_len'])
+        eval_paths = sample_n_trajectories(self.env, eval_policy, self.params['n_eval'], self.params['ep_len'], self.params['n_worker'])
 
         # save eval metrics
         if self.log_metrics:

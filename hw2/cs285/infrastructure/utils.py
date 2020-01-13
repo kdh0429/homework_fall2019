@@ -18,16 +18,16 @@ def sample_trajectory(env, policy, max_path_length, num_worker=1, render=False, 
         rewards.append([])
         next_obs.append([])
         terminals.append([])
+
     steps = 0
     rollout_done = [False for _ in range(num_worker)]
+
     while True:
-        
         # use the most recent ob to decide what to do
         ac = policy.get_action(ob) # TODO: GETTHIS from HW1
         for i in range(num_worker):
-            if rollout_done[i] is False:
-                obs[i].append(ob[i])
-                acs[i].append(ac[i])
+            obs[i].append(ob[i])
+            acs[i].append(ac[i])
         #ac = ac[0]
         #acs.append(ac)
 
@@ -41,11 +41,12 @@ def sample_trajectory(env, policy, max_path_length, num_worker=1, render=False, 
         # Note that the rollout can end due to done, or due to max_path_length
         
         for i in range(num_worker):
+            next_obs[i].append(ob[i])
+            rewards[i].append(rew[i])
+            terminals[i].append(done[i] or (steps > max_path_length))
             if rollout_done[i] is False:
-                next_obs[i].append(ob[i])
-                rewards[i].append(rew[i])
                 rollout_done[i] = done[i] or (steps > max_path_length) # TODO: GETTHIS from HW1
-                terminals[i].append(rollout_done[i])
+                
 
         obs_trajectories, acs_trajectories, rewards_trajectories, next_obs_trajectories, terminals_trajectories, image_obs_trajectories = [], [], [], [], [], []
 
@@ -76,11 +77,11 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, n
 
     return paths, timesteps_this_batch
 
-def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, render_mode=('rgb_array')):
+def sample_n_trajectories(env, policy, ntraj, max_path_length, num_worker=1, render=False, render_mode=('rgb_array')):
     
     paths = []
     for num_traj in range(ntraj):
-        paths.append(sample_trajectory(env, policy, max_path_length, render, render_mode))
+        paths.append(sample_trajectory(env, policy, max_path_length, num_worker, render, render_mode))
         
     return paths
 
