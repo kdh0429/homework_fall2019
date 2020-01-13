@@ -37,8 +37,9 @@ class RL_Trainer(object):
         #############
 
         # Make the gym environment
-        self.env = gym.make(self.params['env_name'])
-        self.env.seed(seed)
+        self.env = make_envs(env_generator(self.params['env_name'], seed), self.params['n_worker'])
+        # self.env = gym.make(self.params['env_name'])
+        # self.env.seed(seed)
 
         # Maximum length for episodes
         self.params['ep_len'] = self.params['ep_len'] or self.env.spec.max_episode_steps
@@ -120,7 +121,7 @@ class RL_Trainer(object):
             training_returns = self.collect_training_trajectories(itr,
                                 initial_expertdata, collect_policy,
                                 self.params['batch_size'])
-            print("Sameple Time: ", time.time()- st)
+            print("Sample Time: ", time.time()- st)
             paths, envsteps_this_batch = training_returns
             self.total_envsteps += envsteps_this_batch
 
@@ -161,8 +162,8 @@ class RL_Trainer(object):
         # TODO collect data to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
-        print("\nCollecting data to be used for training...")
-        paths, envsteps_this_batch = sample_trajectories(self.env, collect_policy, batch_size, self.params['ep_len'])
+        print("\nCollecting data with %d workers to be used for training..." %self.params['n_worker'])
+        paths, envsteps_this_batch = sample_trajectories(self.env, collect_policy, batch_size, self.params['ep_len'], self.params['n_worker'])
 
         return paths, envsteps_this_batch
 
@@ -236,15 +237,18 @@ class RL_Trainer(object):
                 wandb.log(logs)
 
     def eval_render(self,eval_policy):
-        ob = self.env.reset() # HINT: should be the output of resetting the env
+        env = gym.make(self.params['env_name'])
+        seed = self.params['seed']
+        np.random.seed(seed)
+        env.seed(seed)
+        ob = env.reset() # HINT: should be the output of resetting the env
         step = 0
         while True:
-            self.env.render()
+            env.render()
             ac = eval_policy.get_action(ob) # HINT: query the policy's get_action function
-            ac = ac[0]
-            ob, rew, done, _ = self.env.step(ac)
+            ob, rew, done, _ = env.step(ac[0])
             step += 1
             if done or step > self.params['ep_len']:
                 step = 0
-                ob = self.env.reset() # HINT: should be the output of resetting the env
+                ob = env.reset() # HINT: should be the output of resetting the env
             
