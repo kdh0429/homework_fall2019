@@ -141,11 +141,8 @@ class RL_Trainer(object):
                 print('\nBeginning logging procedure...')
                 self.perform_logging(itr, paths, eval_policy)
 
-
-                if self.params['save_params']:
-                    # save policy
-                    print('\nSaving agent\'s actor...')
-                    self.agent.actor.save(self.params['logdir'] + '/policy_itr_'+str(itr))
+        print('\nSaving agent\'s actor...')
+        self.agent.actor.save(self.params['logdir'] + '/policy_itr_'+str(itr))
 
     ####################################
     ####################################
@@ -178,6 +175,13 @@ class RL_Trainer(object):
             # TODO use the sampled data for training
             # HINT: use the agent's train function
             # HINT: print or plot the loss for debugging!
+            print("Obs shape: ", np.shape(ob_batch))
+
+            print("Act shape: ", np.shape(ac_batch))
+
+            print("Rew shape: ", np.shape(re_batch))
+
+            print("Next Obs shape: ", np.shape(next_ob_batch))
             self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
 
     def do_relabel_with_expert(self, expert_policy, paths):
@@ -243,11 +247,11 @@ class RL_Trainer(object):
         ob = env.reset() # HINT: should be the output of resetting the env
         step = 0
         while True:
-            env.render()
             ac = eval_policy.get_action(ob) # HINT: query the policy's get_action function
             ob, rew, done, _ = env.step(ac[0])
+            env.render()
             step += 1
-            if done or step > self.params['ep_len']:
+            if done or (step > self.params['ep_len']):
                 step = 0
                 ob = env.reset() # HINT: should be the output of resetting the env
             

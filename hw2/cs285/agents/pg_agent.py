@@ -16,7 +16,10 @@ class PGAgent(BaseAgent):
         self.gamma = self.agent_params['gamma']
         self.standardize_advantages = self.agent_params['standardize_advantages']
         self.nn_baseline = self.agent_params['nn_baseline'] 
-        self.reward_to_go = self.agent_params['reward_to_go'] 
+        self.reward_to_go = self.agent_params['reward_to_go']
+        self.dgae = self.agent_params['dgae']
+        self.gae_gamma = self.agent_params['gae_gamma']
+        self.gae_lambda = self.agent_params['gae_lambda']
 
         # actor/policy
         # NOTICE that we are using MLPPolicyPG (hw2), instead of MLPPolicySL (hw1)
@@ -65,7 +68,12 @@ class PGAgent(BaseAgent):
         q_values = self.calculate_q_vals(rews_list)
 
         # step 2: calculate advantages that correspond to each (s_t, a_t) point
-        advantage_values = self.estimate_advantage(obs, q_values)
+
+        if self.dgae :
+            advantage_values = self.estimate_advantage(obs, q_values)
+        else:
+            assert self.nn_baseline, 'GAE should be used with value function estimator. Use --nn_baseline option together.'
+            advantage_values = self.estimate_generalized_advantate(obs, rews_list, next_obs, terminals, q_values)
 
         # step 3:
         # TODO: pass the calculated values above into the actor/policy's update, 
@@ -118,10 +126,10 @@ class PGAgent(BaseAgent):
         # HINT1: pass obs into the neural network that you're using to learn the baseline
             # extra hint if you're stuck: see your actor's run_baseline_prediction
         # HINT2: advantage should be [Q-b]
-        # 여기서 NN은 baseline의 분산의 정도(?)를 학습. 이 baseline은 학습 시 single trajectory가 아니라 N개(Not fixed) trajectory들의 평균을 사용. 1개 trajectory를 사용하여 baseline을 구하는 vanilla PG와 여태 모든 trajectory들을 학습하여 baseline을 구하는 actor-acritic의 중간처럼 보임.
+        # 여기서 NN은 baseline(value function)의 분산의 정도(?)를 학습(pg_agent에서 self.actor.update(obs, acs, qvals=q_values, adv_n=advantage_values)에서 qvals를 인자로 주지만 MLP_policy에서 보면 target은 이 qvals를 normalize함). 이 baseline은 학습 시 single trajectory가 아니라 N개(Not fixed) trajectory들의 평균을 사용. 1개 trajectory를 사용하여 baseline을 구하는 vanilla PG와 여태 모든 trajectory들을 학습하여 baseline을 구하는 actor-acritic의 중간처럼 보임.
         if self.nn_baseline:
             b_n_unnormalized = self.actor.run_baseline_prediction(obs) 
-            b_n = b_n_unnormalized * np.std(q_values) + np.mean(q_values)  # Question : If advantage is not normalized, what does it mean by multiplying with std? Should it be used with self.standardize_advantege option?
+            b_n = b_n_unnormalized * np.std(q_values) + np.mean(q_values)
             adv_n = q_values - b_n
 
         # Else, just set the advantage to [Q]
@@ -133,6 +141,27 @@ class PGAgent(BaseAgent):
             adv_n = (adv_n - np.mean(adv_n)) / (np.std(adv_n) + 1e-8)
 
         return adv_n
+
+    def estimate_generalized_advantate(self, obs, rewards, next_obs, terminals, q_values):
+        rew_concat = np.concatenate([r for r in rewards])
+        b_n_unnormalized = self.actor.run_baseline_prediction(obs) 
+        V = b_n_unnormalized * np.std(q_values) + np.mean(q_values)
+
+        gae = np.zeros_like(q_values)
+        end_idx = 0
+        
+        for idx in reversed(range(len(rew_concat))):
+            if terminals[idx]:
+                delta = rew_concat[idx] - V[idx]
+                gae[idx] = (1-self.gae_lambda)*delta
+                end_idx = idx
+            else:
+                delta = rew_concat[idx] + self.gae_gamma*V[idx+1] - V[idx]
+                delta_coeff = (1-self.gae_lambda) * sum(np.power(self.gae_lambda, np.arange(end_idx-idx+1)))
+                gae[idx] = delta_coeff * delta + gae[idx+1]
+        return gae
+
+
 
     #####################################################
     #####################################################

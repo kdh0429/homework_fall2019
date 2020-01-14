@@ -16,13 +16,15 @@ class PG_Trainer(object):
             'n_layers': params['n_layers'],
             'size': params['size'],
             'learning_rate': params['learning_rate'],
-            }
-
+        }
         estimate_advantage_args = {
             'gamma': params['discount'],
             'standardize_advantages': not(params['dont_standardize_advantages']),
             'reward_to_go': params['reward_to_go'],
             'nn_baseline': params['nn_baseline'],
+            'dgae': params['dont_gae'],
+            'gae_gamma': params['gae_gamma'],
+            'gae_lambda': params['gae_lambda']
         }
 
         train_args = {
@@ -65,7 +67,6 @@ def main():
     parser.add_argument('--nn_baseline', action='store_true')
     parser.add_argument('--dont_standardize_advantages', '-dsa', action='store_true')
     parser.add_argument('--batch_size', '-b', type=int, default=1000) #steps collected per train iteration
-    parser.add_argument('--eval_batch_size', '-eb', type=int, default=400) #steps collected per eval iteration
 
     parser.add_argument('--num_agent_train_steps_per_iter', type=int, default=1)
     parser.add_argument('--discount', type=float, default=1.0)
@@ -85,7 +86,10 @@ def main():
     parser.add_argument('--use_wandb', type=int, default=0)
     parser.add_argument('--n_eval', type=int, default=5)
     parser.add_argument('--render_after_training', type=int, default=0)
-    parser.add_argument('--n_worker', type=int, default=8)
+    parser.add_argument('--n_worker', type=int, default=1)
+    parser.add_argument('--dont_gae', '-dgae', action='store_true')
+    parser.add_argument('--gae_gamma', type=float, default=0.99)
+    parser.add_argument('--gae_lambda', type=float, default=0.96)
 
     args = parser.parse_args()
 
