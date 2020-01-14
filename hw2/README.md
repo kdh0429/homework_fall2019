@@ -78,7 +78,8 @@ python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 -
 ### LunarLander: 
 #### Plot a learning curve for the above command. You should expect to achieve an average return of around 180.
 
-
+![Alt text](./pictures/lunarlander.png "Evaluation Cureve of LunarLander")
+! It does not reach reward of 180 and the agent has learn to float over the goal position. Something seems wrong.
 ---------------------------------------
 ## Problem 7
 ### HalfCheetah: 
