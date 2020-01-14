@@ -2,7 +2,7 @@ Berkeley CS285 HW2
 ==================
 # This document does not fully satisfy the elements required in the instruction. It is just for self-organization purpose.
 ## Problem 3
-### * Create two graphs:
+### Create two graphs:
 
 #### - In the first graph, compare the learning curves (average return at each iteration) for the experiments prefixed with sb_. (The small batch experiments.)
 ![Alt text](./pictures/small_batch.png "Small Batch Training Curve")
@@ -50,19 +50,19 @@ by default.
 • --exp_name : Name for experiment, which goes into the name for the data logging
 directory.
 
-### * Answer the following questions briefly:
+### Answer the following questions briefly:
 
-– Which value estimator has better performance without advantage-standardization: the trajectory-centric one, or the one using reward-to-go?
+#### – Which value estimator has better performance without advantage-standardization: the trajectory-centric one, or the one using reward-to-go?
 
-  A : Reward-to-go
+    A : Reward-to-go
   
-– Did advantage standardization help?
+#### – Did advantage standardization help?
 
-  A : No. Actually for small batch experiment, standardizing advantage degraded the performance.
+    A : No. Actually for small batch experiment, standardizing advantage degraded the performance.
   
-– Did the batch size make an impact?
+#### – Did the batch size make an impact?
 
-  A : Yes, larger batch size improved the performance.
+    A : Yes, larger batch size improved the performance.
 ---------------------------------------
 The result of behavior cloning with 'Ant-v2' environent is shown as above. The only change from default setting is that 'num_agent_train_steps_per_iter' is set as 2000.
 Average return of expert is 4713.653(Initial_DataCollection_AverageReturn) and the policy trained with behavior cloning accomplishes average return of 3613.055 with standand devidation of 1395.815(from 5 evaluation episodes).
