@@ -79,12 +79,27 @@ python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 -
 #### Plot a learning curve for the above command. You should expect to achieve an average return of around 180.
 
 ![Alt text](./pictures/lunarlander.png "Evaluation Cureve of LunarLander")
-! It does not reach reward of 180 and the agent has learn to float over the goal position. Something seems wrong.
+
+However, it does not reach reward of 180 and the agent has learn to float over the goal position. Something seems wrong.
+
 ---------------------------------------
 ## Problem 7
 ### HalfCheetah: 
 #### Provide a single plot with the learning curves for the HalfCheetah experiments over batch sizes b ∈ [10000, 30000, 50000] and learning rates r ∈ [0.005, 0.01, 0.02]. Also, describe in words how the batch size and learning rate affected task performance.
 
+![Alt text](./pictures/halfcheetah_hyperparam.png "Half Cheetah Hyper Parameter Search")
+
+- fresh-bird-62 : batch size 50000, learning rate 0.02
+- visionary-durian-61 : batch size 50000, learning rate 0.01
+- lucky-sunset-60 : batch size 50000, learning rate 0.005
+- misunderstood-waterfall-59 : batch size 30000, learning rate 0.02
+- dutiful-star-58 : batch size 30000, learning rate 0.01
+- charmed-resonance-57 : batch size 30000, learning rate 0.005
+- ethereal-plasma-56 : batch size 10000, learning rate 0.02
+- celestial-spaceship-55 : batch size 10000, learning rate 0.01
+- toasty-morning-54 : batch size 10000, learning rate 0.005
+
+In general, larget batch size and higher learning rate accompished better performance. The best performance was accompished with batch size 50000 and learning rate 0.02
 
 #### Provide a single plot with the learning curves for four runs below. The run with both reward-to-go and the baseline should achieve an average score close to 200.
 
@@ -95,3 +110,12 @@ python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 -
 • python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> --nn_baseline --exp_namehc_b<b*>_r<r*>
 
 • python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> -rtg --nn_baseline --exp_name hc_b<b*>_r<r*>
+
+
+---------------------------------------
+## Bonus!
+### A serious bottleneck in the learning, for more complex environments, is the samplecollection time. In infrastructure/rl trainer.py, we only collect trajectories in a single thread, but this process can be fully parallelized across threads to get a useful speedup. Implement the parallelization and report on the difference in training time.
+
+![Alt text](./pictures/parallelization_time.png "Time Since Start Comparision")
+
+The comparision was held with LunarLander environment handled in problem 6. MultiProccesing module was used to parralelize sampling reffering to OpenAI baseline SubprocVecEnv. 16 independent enviroments with workers are created parralelly thus shorten sampling time.
