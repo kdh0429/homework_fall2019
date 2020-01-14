@@ -14,12 +14,16 @@ curious-pyramid-9 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 
 rare-sunset-10 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name sb_rtg_na
 
 • -n : Number of iterations.
+
 • -b : Batch size (number of state-action pairs sampled while acting according to the
 current policy at each iteration).
+
 • -dsa : Flag: if present, sets standardize_advantages to False. Otherwise, by
 default, standardize_advantages=True.
+
 • -rtg : Flag: if present, sets reward_to_go=True. Otherwise, reward_to_go=False
 by default.
+
 • --exp_name : Name for experiment, which goes into the name for the data logging
 directory.
 
@@ -33,12 +37,16 @@ colorful-microwave-12 : python rrun_hw2_policy_gradient.py --env_name CartPole-v
 true-water-13 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name lb_rtg_na
 
 • -n : Number of iterations.
+
 • -b : Batch size (number of state-action pairs sampled while acting according to the
 current policy at each iteration).
+
 • -dsa : Flag: if present, sets standardize_advantages to False. Otherwise, by
 default, standardize_advantages=True.
+
 • -rtg : Flag: if present, sets reward_to_go=True. Otherwise, reward_to_go=False
 by default.
+
 • --exp_name : Name for experiment, which goes into the name for the data logging
 directory.
 
