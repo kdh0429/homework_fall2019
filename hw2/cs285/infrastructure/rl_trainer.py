@@ -66,7 +66,6 @@ class RL_Trainer(object):
             wandb.config.num_agent_train_steps_per_iter = self.params['num_agent_train_steps_per_iter']
             wandb.config.n_iter = self.params['n_iter']
             wandb.config.batch_size = self.params['batch_size']
-            wandb.config.eval_batch_size = self.params['eval_batch_size']
             wandb.config.train_batch_size = self.params['train_batch_size']
             wandb.config.n_layers = self.params['n_layers']
             wandb.config.size = self.params['size']
@@ -199,7 +198,7 @@ class RL_Trainer(object):
 
         # collect eval trajectories, for logging
         print("\nCollecting data for eval...")
-        eval_paths = sample_n_trajectories(self.env, eval_policy, self.params['n_eval'], self.params['ep_len'], self.params['n_worker'])
+        eval_paths = sample_n_trajectories(self.env, eval_policy, self.params['n_eval'], self.params['ep_len'])
 
         # save eval metrics
         if self.log_metrics:
