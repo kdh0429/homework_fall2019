@@ -51,12 +51,17 @@ by default.
 directory.
 
 ### * Answer the following questions briefly:
-– Which value estimator has better performance without advantage-standardization:
-the trajectory-centric one, or the one using reward-to-go?
+
+– Which value estimator has better performance without advantage-standardization: the trajectory-centric one, or the one using reward-to-go?
+
   A : Reward-to-go
+  
 – Did advantage standardization help?
+
   A : No. Actually for small batch experiment, standardizing advantage degraded the performance.
+  
 – Did the batch size make an impact?
+
   A : Yes, larger batch size improved the performance.
 ---------------------------------------
 The result of behavior cloning with 'Ant-v2' environent is shown as above. The only change from default setting is that 'num_agent_train_steps_per_iter' is set as 2000.
