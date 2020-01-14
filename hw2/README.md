@@ -119,3 +119,9 @@ In general, larget batch size and higher learning rate accompished better perfor
 ![Alt text](./pictures/parallelization_time.png "Time Since Start Comparision")
 
 The comparision was held with LunarLander environment handled in problem 6. MultiProccesing module was used to parralelize sampling reffering to OpenAI baseline SubprocVecEnv. 16 independent enviroments with workers are created parralelly thus shorten sampling time.
+
+### Implement GAE-λ for advantage estimation. 1 Run experiments in a MuJoCo gym environment to explore whether this speeds up training. (Walker2d-v1 may be good for this.)
+
+
+
+### In PG, we collect a batch of data, estimate a single gradient, and then discard the data and move on. Can we potentially accelerate PG by taking multiple gradient descent steps with the same batch of data? Explore this option and report on your results.Set up a fair comparison between single-step PG and multi-step PG on at least one MuJoCo gym environment.
