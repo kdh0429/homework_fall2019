@@ -75,6 +75,10 @@ class RL_Trainer(object):
             wandb.config.which_gpu = self.params['which_gpu']
             wandb.config.seed = self.params['seed']
             wandb.config.n_eval = self.params['n_eval']
+            wandb.config.n_worker = self.params['n_worker']
+            wandb.config.dont_gae = self.params['dont_gae']
+            wandb.config.gae_gamma = self.params['gae_gamma']
+            wandb.config.gae_lambda = self.params['gae_lambda']
 
         #############
         ## AGENT
