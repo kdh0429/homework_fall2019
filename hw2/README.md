@@ -5,7 +5,7 @@ Berkeley CS285 HW2
 ### Create two graphs:
 
 #### - In the first graph, compare the learning curves (average return at each iteration) for the experiments prefixed with sb_. (The small batch experiments.)
-![Alt text](./pictures/small_batch.png "Small Batch Training Curve")
+<center> ![Alt text](./pictures/small_batch.png "Small Batch Training Curve") </center>
 
 dainty-wave-8 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 -dsa --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name sb_no_rtg_dsa
 
@@ -28,7 +28,7 @@ by default.
 directory.
 
 #### – In the second graph, compare the learning curves for the experiments prefixed with lb_. (The large batch experiments.)
-![Alt text](./pictures/large_batch.png "Large Batch Training Curve")
+<center> ![Alt text](./pictures/large_batch.png "Large Batch Training Curve") </center>
 
 drawn-disco-11 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 -dsa --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name lb_no_rtg_dsa
 
