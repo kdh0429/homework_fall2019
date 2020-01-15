@@ -1,54 +1,45 @@
 Berkeley CS285 HW2
 ==================
-# This document does not fully satisfy the elements required in the instruction. It is just for self-organization purpose.
+# This document does not fully satisfy the elements required in the instruction. It is just for self-organization purpose. Also, arguments and codes are modified.
 ## Problem 3
 ### Create two graphs:
 
 #### - In the first graph, compare the learning curves (average return at each iteration) for the experiments prefixed with sb_. (The small batch experiments.)
-![Alt text](./pictures/small_batch.png "Small Batch Training Curve")
+![Alt text](./pictures/CartPole_SB.png "Small Batch Validation Curve")
 
-dainty-wave-8 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 -dsa --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name sb_no_rtg_dsa
+deft-pine-91 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 -sa 0 -l 1 -s 32 --use_wandb 1 --render_after_training 0 --n_worker 1 --gae 0
 
-curious-pyramid-9 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 -rtg -dsa --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name sb_rtg_dsa
+daily-planet-92 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 -sa 0 -rtg 1 -l 1 -s 32 --use_wandb 1 --render_after_training 0 --n_worker 1 --gae 0
 
-rare-sunset-10 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name sb_rtg_na
+good-lion-93 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 1000 -sa 1 -rtg 1 -l 1 -s 32 --use_wandb 1 --render_after_training 0 --n_worker 1 --gae 0
 
 • -n : Number of iterations.
 
 • -b : Batch size (number of state-action pairs sampled while acting according to the
 current policy at each iteration).
 
-• -dsa : Flag: if present, sets standardize_advantages to False. Otherwise, by
-default, standardize_advantages=True.
+• -sa : Flag: standardize advantages
 
-• -rtg : Flag: if present, sets reward_to_go=True. Otherwise, reward_to_go=False
-by default.
+• -rtg : Flag: Sets reward_to_go
 
-• --exp_name : Name for experiment, which goes into the name for the data logging
-directory.
 
 #### – In the second graph, compare the learning curves for the experiments prefixed with lb_. (The large batch experiments.)
-![Alt text](./pictures/large_batch.png "Large Batch Training Curve")
+![Alt text](./pictures/CartPole_LB.png "Large Batch Validation Curve")
 
-drawn-disco-11 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 -dsa --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name lb_no_rtg_dsa
+clean-star-94 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 -sa 0 -rtg 0 -l 1 -s 32 --use_wandb 1 --render_after_training 0 --n_worker 1 --gae 0
 
-colorful-microwave-12 : python rrun_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 -rtg -dsa --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name lb_rtg_dsa
+lunar-pond-95 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 -sa 0 -rtg 1 -l 1 -s 32 --use_wandb 1 --render_after_training 0 --n_worker 1 --gae 0
 
-true-water-13 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 --n_layers 1 --size 32 --use_wandb 1 --n_worker 1 --render_after_training 0 --exp_name lb_rtg_na
+colorful-bee-96 : python run_hw2_policy_gradient.py --env_name CartPole-v0 -n 100 -b 5000 -sa 1 -rtg 1 -l 1 -s 32 --use_wandb 1 --render_after_training 0 --n_worker 1 --gae 0
 
 • -n : Number of iterations.
 
 • -b : Batch size (number of state-action pairs sampled while acting according to the
 current policy at each iteration).
 
-• -dsa : Flag: if present, sets standardize_advantages to False. Otherwise, by
-default, standardize_advantages=True.
+• -sa : Flag: standardize advantages
 
-• -rtg : Flag: if present, sets reward_to_go=True. Otherwise, reward_to_go=False
-by default.
-
-• --exp_name : Name for experiment, which goes into the name for the data logging
-directory.
+• -rtg : Flag: Sets reward_to_go
 
 ### Answer the following questions briefly:
 
@@ -58,7 +49,7 @@ directory.
   
 #### – Did advantage standardization help?
 
-    A : No. Actually for small batch experiment, standardizing advantage degraded the performance.
+    A : Not actually. The performance did not depend on whether to standardize advantage or not. 
   
 #### – Did the batch size make an impact?
 
@@ -70,7 +61,7 @@ directory.
 
 ![Alt text](./pictures/InvertedPendulum.png "Evaluation Cureve of Inverted Pendulum with Batch Size 1000 and Learning Rate  0.015")
 
-python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 --discount 0.9 -n 100 -l 2 -s 64 -b 1000 -lr 0.015 -rtg --use_wandb 1 --render_after_training 1 --n_worker 1 --exp_name ip_b1000_r0.015
+python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 --discount 0.9 -n 100 -l 2 -s 64 -b 1000 -lr 0.015 -rtg 1 -sa 1 --use_wandb 1 --render_after_training 1 --n_worker 1 --exp_name ip_b1000_r0.015
 
 
 ---------------------------------------
@@ -78,9 +69,7 @@ python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 -
 ### LunarLander: 
 #### Plot a learning curve for the above command. You should expect to achieve an average return of around 180.
 
-![Alt text](./pictures/lunarlander.png "Evaluation Cureve of LunarLander")
-
-However, it does not reach reward of 180 and the agent has learn to float over the goal position. Something seems wrong.
+![Alt text](./pictures/LunarLander_nnbaseline.png "Evaluation Cureve of LunarLander")
 
 ---------------------------------------
 ## Problem 7
@@ -103,13 +92,24 @@ In general, larget batch size and higher learning rate accompished better perfor
 
 #### Provide a single plot with the learning curves for four runs below. The run with both reward-to-go and the baseline should achieve an average score close to 200.
 
-• python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> --exp_name hc_b<b*>_r<r*>
 
-• python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> -rtg --exp_name hc_b<b*>_r<r*>
+![Alt text](./pictures/HalfCheetah_rtg_nnbaseline_Compare.png "Half Cheetah Reward to Go and NN Baseline Compare")
 
-• python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> --nn_baseline --exp_namehc_b<b*>_r<r*>
+• olive-salad-81 : without reward to go and without neural network baseline
+    python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 0 --nn_baseline 0 --use_wandb 1 --gae 0 --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
 
-• python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b <b*> -lr <r*> -rtg --nn_baseline --exp_name hc_b<b*>_r<r*>
+• mild-galaxy-82 : with reward to go and without neural network baseline
+    python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 1 --nn_baseline 0 --use_wandb 1 --dont_gae --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
+
+• pleasant-meadow-83 : without reward to go and with neural network baseline
+    python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 0 --nn_baseline 1 --use_wandb 1 --gae 0 --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
+
+• crisp-cloud-84: with reward to go and with neural network baseline
+    python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 1 --nn_baseline 1--use_wandb 1 --dont_gae --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
+
+
+
+
 
 
 ---------------------------------------
