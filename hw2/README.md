@@ -76,19 +76,19 @@ python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 -
 ### HalfCheetah: 
 #### Provide a single plot with the learning curves for the HalfCheetah experiments over batch sizes b ∈ [10000, 30000, 50000] and learning rates r ∈ [0.005, 0.01, 0.02]. Also, describe in words how the batch size and learning rate affected task performance.
 
-![Alt text](./pictures/halfcheetah_hyperparam.png "Half Cheetah Hyper Parameter Search")
+![Alt text](./pictures/HalfCheetahHyperParamCompare.png "Half Cheetah Hyper Parameter Search")
 
-- fresh-bird-62 : batch size 50000, learning rate 0.02
-- visionary-durian-61 : batch size 50000, learning rate 0.01
-- lucky-sunset-60 : batch size 50000, learning rate 0.005
-- misunderstood-waterfall-59 : batch size 30000, learning rate 0.02
-- dutiful-star-58 : batch size 30000, learning rate 0.01
-- charmed-resonance-57 : batch size 30000, learning rate 0.005
-- ethereal-plasma-56 : batch size 10000, learning rate 0.02
-- celestial-spaceship-55 : batch size 10000, learning rate 0.01
-- toasty-morning-54 : batch size 10000, learning rate 0.005
+- misty-vortex-98 : batch size 50000, learning rate 0.02
+- lucky-pyramid-99 : batch size 50000, learning rate 0.01
+- happy-wildflower-100 : batch size 50000, learning rate 0.005
+- royal-durian-101 : batch size 30000, learning rate 0.02
+- sage-flower-102: batch size 30000, learning rate 0.01
+- still-surf-103 : batch size 30000, learning rate 0.005
+- deft-paper-104 : batch size 10000, learning rate 0.02
+- genial-shape-105 : batch size 10000, learning rate 0.01
+- absurd-eon-106 : batch size 10000, learning rate 0.005
 
-In general, larget batch size and higher learning rate accompished better performance. The best performance was accompished with batch size 50000 and learning rate 0.02
+In general, larget batch size and higher learning rate accompished better performance. Especially, larget batch helps. The best performance was accompished with batch size 50000 and learning rate 0.01
 
 #### Provide a single plot with the learning curves for four runs below. The run with both reward-to-go and the baseline should achieve an average score close to 200.
 
@@ -112,10 +112,6 @@ In general, larget batch size and higher learning rate accompished better perfor
     python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 1 --nn_baseline 1--use_wandb 1 --dont_gae --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
 
 
-
-
-
-
 ---------------------------------------
 ## Bonus!
 ### A serious bottleneck in the learning, for more complex environments, is the samplecollection time. In infrastructure/rl trainer.py, we only collect trajectories in a single thread, but this process can be fully parallelized across threads to get a useful speedup. Implement the parallelization and report on the difference in training time.
@@ -126,6 +122,5 @@ The comparision was held with LunarLander environment handled in problem 6. Mult
 
 ### Implement GAE-λ for advantage estimation. 1 Run experiments in a MuJoCo gym environment to explore whether this speeds up training. (Walker2d-v1 may be good for this.)
 
-
-
-### In PG, we collect a batch of data, estimate a single gradient, and then discard the data and move on. Can we potentially accelerate PG by taking multiple gradient descent steps with the same batch of data? Explore this option and report on your results.Set up a fair comparison between single-step PG and multi-step PG on at least one MuJoCo gym environment.
+![Alt text](./pictures/Walker2D_GAE_Compare.png "Walker2d GAE Comparision")
+Walker2d-v2 environment was used for comparision. gamma and lambda for GAE was set to 0.99 and 0.96 each. 2 hidden layers with 64 hidden neurons per layer was used for value function estimation. Learning rate was set as 0.005, with 50000 batch size. By using GAE, return has increase, but the variance is large. I am not sure whether the implementation is correct. It should be checked.
