@@ -242,6 +242,8 @@ class RL_Trainer(object):
 
             if self.params['use_wandb'] == 1:
                 wandb.log(logs)
+            
+            print("Eval Average Return: ", logs["Eval_AverageReturn"])
 
     def eval_render(self,eval_policy):
         env = gym.make(self.params['env_name'])

@@ -224,7 +224,7 @@ class PGAgent(BaseAgent):
             indices = np.arange(start_time_index, rewards.size)
 
             # 2) create a list where the entry at each index (t') is gamma^(t'-t)
-            discounts = np.power(self.gamma, indices)
+            discounts = np.power(self.gamma, indices-start_time_index)
 
             # 3) create a list where the entry at each index (t') is gamma^(t'-t) * r_{t'}
             # Hint: remember that t' goes from t to T-1, so you should use the rewards from those indices as well
