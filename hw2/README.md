@@ -96,15 +96,19 @@ In general, larget batch size and higher learning rate accompished better perfor
 ![Alt text](./pictures/HalfCheetah_rtg_nnbaseline_Compare.png "Half Cheetah Reward to Go and NN Baseline Compare")
 
 • olive-salad-81 : without reward to go and without neural network baseline
+
     python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 0 --nn_baseline 0 --use_wandb 1 --gae 0 --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
 
 • mild-galaxy-82 : with reward to go and without neural network baseline
+
     python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 1 --nn_baseline 0 --use_wandb 1 --dont_gae --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
 
 • pleasant-meadow-83 : without reward to go and with neural network baseline
+
     python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 0 --nn_baseline 1 --use_wandb 1 --gae 0 --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
 
 • crisp-cloud-84: with reward to go and with neural network baseline
+
     python run_hw2_policy_gradient.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg 1 --nn_baseline 1--use_wandb 1 --dont_gae --render_after_training 0 --n_worker 1 --exp_name hc_b50000_lr0.02
 
 
@@ -116,7 +120,7 @@ In general, larget batch size and higher learning rate accompished better perfor
 ## Bonus!
 ### A serious bottleneck in the learning, for more complex environments, is the samplecollection time. In infrastructure/rl trainer.py, we only collect trajectories in a single thread, but this process can be fully parallelized across threads to get a useful speedup. Implement the parallelization and report on the difference in training time.
 
-![Alt text](./pictures/parallelization_time.png "Time Since Start Comparision")
+![Alt text](./pictures/ParallelizationTimeCompare.png "Time Since Start Comparision")
 
 The comparision was held with LunarLander environment handled in problem 6. MultiProccesing module was used to parralelize sampling reffering to OpenAI baseline SubprocVecEnv. 16 independent enviroments with workers are created parralelly thus shorten sampling time.
 
