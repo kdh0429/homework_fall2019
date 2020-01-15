@@ -123,4 +123,5 @@ The comparision was held with LunarLander environment handled in problem 6. Mult
 ### Implement GAE-λ for advantage estimation. 1 Run experiments in a MuJoCo gym environment to explore whether this speeds up training. (Walker2d-v1 may be good for this.)
 
 ![Alt text](./pictures/Walker2D_GAE_Compare.png "Walker2d GAE Comparision")
+
 Walker2d-v2 environment was used for comparision. gamma and lambda for GAE was set to 0.99 and 0.96 each. 2 hidden layers with 64 hidden neurons per layer was used for value function estimation. Learning rate was set as 0.005, with 50000 batch size. By using GAE, return has increase, but the variance is large. I am not sure whether the implementation is correct. It should be checked.
