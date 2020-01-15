@@ -54,6 +54,10 @@ class PG_Trainer(object):
         if self.params['render_after_training'] == 1:
             self.rl_trainer.eval_render(self.rl_trainer.agent.actor)
 
+    def load_trained_agent_render(self):
+        self.rl_trainer.agent.actor.restore('/home/kim/cs285_ws/homework_fall2019/hw2/cs285/data/pg_todo_CartPole-v0_15-01-2020_15-42-29/policy_itr_99')
+        self.rl_trainer.eval_render(self.rl_trainer.agent.actor)
+
 
 def main():
 
@@ -89,6 +93,8 @@ def main():
     parser.add_argument('--gae_gamma', type=float, default=0.99)
     parser.add_argument('--gae_lambda', type=float, default=0.96)
 
+    parser.add_argument('--load_existing_agent', type=int, default=0)
+
     args = parser.parse_args()
 
     # convert to dictionary
@@ -120,7 +126,10 @@ def main():
     ###################
 
     trainer = PG_Trainer(params)
-    trainer.run_training_loop()
+    if not params['load_existing_agent']:
+        trainer.run_training_loop()
+    else:
+        trainer.load_trained_agent_render()
 
 
 if __name__ == "__main__":
