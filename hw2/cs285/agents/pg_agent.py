@@ -17,7 +17,7 @@ class PGAgent(BaseAgent):
         self.standardize_advantages = self.agent_params['standardize_advantages']
         self.nn_baseline = self.agent_params['nn_baseline'] 
         self.reward_to_go = self.agent_params['reward_to_go']
-        self.dgae = self.agent_params['dgae']
+        self.gae = self.agent_params['gae']
         self.gae_gamma = self.agent_params['gae_gamma']
         self.gae_lambda = self.agent_params['gae_lambda']
 
@@ -69,7 +69,7 @@ class PGAgent(BaseAgent):
 
         # step 2: calculate advantages that correspond to each (s_t, a_t) point
 
-        if self.dgae :
+        if not self.gae :
             advantage_values = self.estimate_advantage(obs, q_values)
         else:
             assert self.nn_baseline, 'GAE should be used with value function estimator. Use --nn_baseline option together.'
@@ -158,7 +158,7 @@ class PGAgent(BaseAgent):
             else:
                 delta = rew_concat[idx] + self.gae_gamma*V[idx+1] - V[idx]
                 delta_coeff = (1-self.gae_lambda) * sum(np.power(self.gae_lambda, np.arange(end_idx-idx+1)))
-                gae[idx] = delta_coeff * delta + gae[idx+1]
+                gae[idx] = delta_coeff * delta + self.gae_gamma*self.gae_lambda*gae[idx+1]
         return gae
 
 
