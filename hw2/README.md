@@ -78,15 +78,15 @@ python run_hw2_policy_gradient.py --env_name InvertedPendulum-v2 --ep_len 1000 -
 
 ![Alt text](./pictures/HalfCheetahHyperParamCompare.png "Half Cheetah Hyper Parameter Search")
 
-- misty-vortex-98 : batch size 50000, learning rate 0.02
-- lucky-pyramid-99 : batch size 50000, learning rate 0.01
-- happy-wildflower-100 : batch size 50000, learning rate 0.005
+- misty-vortex-98 : batch size 10000, learning rate 0.02
+- lucky-pyramid-99 : batch size 10000, learning rate 0.01
+- happy-wildflower-100 : batch size 10000, learning rate 0.005
 - royal-durian-101 : batch size 30000, learning rate 0.02
 - sage-flower-102: batch size 30000, learning rate 0.01
 - still-surf-103 : batch size 30000, learning rate 0.005
-- deft-paper-104 : batch size 10000, learning rate 0.02
-- genial-shape-105 : batch size 10000, learning rate 0.01
-- absurd-eon-106 : batch size 10000, learning rate 0.005
+- deft-paper-104 : batch size 50000, learning rate 0.02
+- genial-shape-105 : batch size 50000, learning rate 0.01
+- absurd-eon-106 : batch size 50000, learning rate 0.005
 
 In general, larget batch size and higher learning rate accompished better performance. Especially, larget batch helps. The best performance was accompished with batch size 50000 and learning rate 0.01
 
