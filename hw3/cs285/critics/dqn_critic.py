@@ -30,9 +30,6 @@ class DQNCritic(BaseCritic):
 
         # q values, created with the placeholder that holds CURRENT obs (i.e., t)
         self.q_t_values = q_func(self.obs_t_ph, self.ac_dim, scope='q_func', reuse=False)
-        self.ac_tmp = self.act_t_ph
-        self.one_hot_tmp = tf.one_hot(self.act_t_ph, self.ac_dim)
-        self.q_t_origin = self.q_t_values * tf.one_hot(self.act_t_ph, self.ac_dim)
         self.q_t = tf.reduce_sum(self.q_t_values * tf.one_hot(self.act_t_ph, self.ac_dim), axis=1)
 
         #####################
@@ -45,7 +42,7 @@ class DQNCritic(BaseCritic):
             # In double Q-learning, the best action is selected using the Q-network that
             # is being updated, but the Q-value for this action is obtained from the
             # target Q-network. See page 5 of https://arxiv.org/pdf/1509.06461.pdf for more details.
-            TODO
+            q_tp1 = tf.reduce_sum(self.q_tp1_values*tf.one_hot(self.act_t_ph, self.ac_dim), axis=1)
         else:
             # q values of the next timestep
             q_tp1 = tf.reduce_max(q_tp1_values, axis=1)

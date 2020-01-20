@@ -47,7 +47,7 @@ class RL_Trainer(object):
         self.env = gym.make(self.params['env_name'])
         if 'env_wrappers' in self.params:
             # These operations are currently only for Atari envs
-            self.env = wrappers.Monitor(self.env, os.path.join(self.params['logdir'], "gym"), force=True)
+            self.env = wrappers.Monitor(self.env, os.path.join(self.params['logdir'], "gym"), force=True, video_callable=False)
             self.env = params['env_wrappers'](self.env)
             self.mean_episode_reward = -float('nan')
             self.best_mean_episode_reward = -float('inf')
@@ -171,7 +171,13 @@ class RL_Trainer(object):
                     self.agent.actor.save(self.params['logdir'] + '/policy_itr_'+str(itr))
                     self.agent.critic.save(self.params['logdir'] + '/critic_itr_'+str(itr))
             if itr %1000 ==0:
-                print(itr)
+                print("Iteration ",itr)
+        
+        self.env = wrappers.Monitor(self.env, os.path.join(self.params['logdir'], "gym"), force=True)
+        while True:
+            self.agent.step_env()
+
+            
 
     ####################################
     ####################################
@@ -217,7 +223,7 @@ class RL_Trainer(object):
 
     def train_agent(self):
         # TODO: GETTHIS from HW1
-        print('\nTraining agent using sampled data from replay buffer...')
+        #print('\nTraining agent using sampled data from replay buffer...')
         for train_step in range(self.params['num_agent_train_steps_per_iter']):
 
             # TODO sample some data from the data buffer
