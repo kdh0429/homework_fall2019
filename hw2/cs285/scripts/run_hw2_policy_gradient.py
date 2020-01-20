@@ -85,6 +85,7 @@ def main():
     parser.add_argument('--video_log_freq', type=int, default=-1)   # video log disabled
     parser.add_argument('--scalar_log_freq', type=int, default=1)
 
+    # Added argument
     parser.add_argument('--use_wandb', type=int, default=0)
     parser.add_argument('--n_eval', type=int, default=5)
     parser.add_argument('--render_after_training', type=int, default=0)

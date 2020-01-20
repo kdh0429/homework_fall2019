@@ -30,6 +30,9 @@ class DQNCritic(BaseCritic):
 
         # q values, created with the placeholder that holds CURRENT obs (i.e., t)
         self.q_t_values = q_func(self.obs_t_ph, self.ac_dim, scope='q_func', reuse=False)
+        self.ac_tmp = self.act_t_ph
+        self.one_hot_tmp = tf.one_hot(self.act_t_ph, self.ac_dim)
+        self.q_t_origin = self.q_t_values * tf.one_hot(self.act_t_ph, self.ac_dim)
         self.q_t = tf.reduce_sum(self.q_t_values * tf.one_hot(self.act_t_ph, self.ac_dim), axis=1)
 
         #####################
@@ -54,7 +57,7 @@ class DQNCritic(BaseCritic):
             #currentReward + self.gamma * qValuesOfNextTimestep * (1 - self.done_mask_ph)
         # HINT2: see above, where q_tp1 is defined as the q values of the next timestep
         # HINT3: see the defined placeholders and look for the one that holds current rewards
-        target_q_t = TODO
+        target_q_t = self.rew_t_ph + self.gamma * q_tp1 * (1 - self.done_mask_ph)
         target_q_t = tf.stop_gradient(target_q_t)
 
         #####################
@@ -62,7 +65,7 @@ class DQNCritic(BaseCritic):
         # TODO compute the Bellman error (i.e. TD error between q_t and target_q_t)
         # Note that this scalar-valued tensor later gets passed into the optimizer, to be minimized
         # HINT: use reduce mean of huber_loss (from infrastructure/dqn_utils.py) instead of squared error
-        self.total_error= TODO
+        self.total_error= tf.reduce_mean(huber_loss(self.q_t - target_q_t))
 
         #####################
 
@@ -70,8 +73,8 @@ class DQNCritic(BaseCritic):
         # variables of the Q-function network and target network, respectively
         # HINT1: see the "scope" under which the variables were constructed in the lines at the top of this function
         # HINT2: use tf.get_collection to look for all variables under a certain scope
-        q_func_vars = TODO
-        target_q_func_vars = TODO
+        q_func_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='q_func')
+        target_q_func_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='target_q_func')
 
         #####################
 
