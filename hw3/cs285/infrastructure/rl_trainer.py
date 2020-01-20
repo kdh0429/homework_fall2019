@@ -173,9 +173,9 @@ class RL_Trainer(object):
             if itr %1000 ==0:
                 print("Iteration ",itr)
         
-        self.env = wrappers.Monitor(self.env, os.path.join(self.params['logdir'], "gym"), force=True)
-        while True:
-            self.agent.step_env()
+        # self.env = wrappers.Monitor(self.env, os.path.join(self.params['logdir'], "gym"), force=True)
+        # while True:
+        #     self.agent.step_env()
 
             
 
@@ -214,10 +214,10 @@ class RL_Trainer(object):
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
         train_video_paths = None
-        if self.log_video:
-            print('\nCollecting train rollouts to be used for saving videos...')
-            ## TODO look in utils and implement sample_n_trajectories
-            train_video_paths = sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
+        # if self.log_video:
+        #     print('\nCollecting train rollouts to be used for saving videos...')
+        #     ## TODO look in utils and implement sample_n_trajectories
+        #     train_video_paths = sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
 
         return paths, envsteps_this_batch, train_video_paths
 
@@ -234,7 +234,9 @@ class RL_Trainer(object):
             # TODO use the sampled data for training
             # HINT: use the agent's train function
             # HINT: print or plot the loss for debugging!
-            self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
+            loss = self.agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
+        return loss
+        
     def do_relabel_with_expert(self, expert_policy, paths):
         # TODO: GETTHIS from HW1 (although you don't actually need it for this homework)
         print("\nRelabelling collected observations with labels from an expert policy...")
@@ -340,3 +342,21 @@ class RL_Trainer(object):
             print('Done logging...\n\n')
 
             self.logger.flush()
+
+    def eval_render(self,eval_policy):
+        env = gym.make(self.params['env_name'])
+        seed = self.params['seed']
+        np.random.seed(seed)
+        env.seed(seed)
+        ob = env.reset() # HINT: should be the output of resetting the env
+        step = 0
+        print("Max Episode Length: ", self.params['ep_len'])
+        while True:
+            ac = eval_policy.get_action(ob) # HINT: query the policy's get_action function
+            ob, rew, done, _ = env.step(ac[0])
+            env.render()
+            step += 1
+            if done or (step > self.params['ep_len']):
+                step = 0
+                ob = env.reset() # HINT: should be the output of resetting the env
+            
