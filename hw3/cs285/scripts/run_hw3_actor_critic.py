@@ -42,6 +42,8 @@ class AC_Trainer(object):
         self.params['agent_params'] = agent_params
         self.params['batch_size_initial'] = self.params['batch_size']
 
+        parser.add_argument('--use_wandb', type=int, default=0)
+
         ################
         ## RL TRAINER
         ################

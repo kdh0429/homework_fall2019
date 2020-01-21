@@ -35,6 +35,7 @@ class Q_Trainer(object):
             collect_policy = self.rl_trainer.agent.actor,
             eval_policy = self.rl_trainer.agent.actor,
             )
+        self.rl_trainer.eval_render(self.rl_trainer.agent.actor)
 
 def main():
 
@@ -61,6 +62,8 @@ def main():
     parser.add_argument('--scalar_log_freq', type=int, default=int(1e4))
 
     parser.add_argument('--save_params', action='store_true')
+
+    parser.add_argument('--use_wandb', type=int, default=0)
 
     args = parser.parse_args()
 
