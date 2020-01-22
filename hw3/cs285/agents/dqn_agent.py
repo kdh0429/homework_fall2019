@@ -36,7 +36,7 @@ class DQNAgent(object):
     def add_to_replay_buffer(self, paths):
         pass
 
-    def step_env(self):
+    def step_env(self, render):
 
         """
             Step the env and store the transition
@@ -82,6 +82,9 @@ class DQNAgent(object):
         # HINT2: remember the following useful function that you've seen before:
             #obs, reward, done, info = env.step(action)
         self.last_obs, reward, done, info = self.env.step(action)
+
+        if render:
+            self.env.render()
 
         # TODO store the result of taking this action into the replay buffer
         # HINT1: see replay buffer's store_effect function

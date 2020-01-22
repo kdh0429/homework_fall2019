@@ -35,7 +35,7 @@ class Q_Trainer(object):
             collect_policy = self.rl_trainer.agent.actor,
             eval_policy = self.rl_trainer.agent.actor,
             )
-        self.rl_trainer.eval_render(self.rl_trainer.agent.actor)
+        self.rl_trainer.eval_render()
 
 def main():
 
