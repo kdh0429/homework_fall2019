@@ -3,6 +3,7 @@ import numpy as np
 from .base_policy import BasePolicy
 
 
+import time
 class MPCPolicy(BasePolicy):
 
     def __init__(self, sess, env, ac_dim, dyn_models, horizon, N, **kwargs):
@@ -51,7 +52,6 @@ class MPCPolicy(BasePolicy):
             # states for each dynamics model in your ensemble
             ob = np.tile(obs,[self.N,1])
             for hor_idx in range(self.horizon):
-                import time
                 st1 = time.time()
                 rew, _ = self.env.get_reward(ob, candidate_action_sequences[:,hor_idx,:])
                 st2 = time.time()
