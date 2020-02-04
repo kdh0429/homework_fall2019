@@ -30,4 +30,19 @@ Each Vallina Q-learning and double Q-learning algorithm was run with 3 seeds. As
 The hyperparameter I chose is the batch size. In addition to the original batch size of 32, which was run in Quesion 1, batch size of 16, 64, 128 was chosen. Batch size of 32 achieved the highest performance, but It seems reasonable to tune the learning rate also, since change of batch size affect the sensitivity of learning rate. 
 
 ---------------------------------------
+## Question 4
+### Sanity check with Cartpole
+#### Compare the results for alternating between the number of target update and the number of gradient update step for the critic.
+![Alt text](./cs285/picture/Q4_CriticUpdateMethodCompare.png "Effect of Number of Target Update and Gradient Update Comparision")
 
+Both 10 target updates with 10 gradient updates per target update and 1 target updates with 100 gradient update per target update achieved the maximum reward of 200. However, 10 target updates with 10 gradient updates per target update achieved maximum reward faster. 100 target update with 1 gradient update was somewhat unstable with respect to critic loss, since it updated target value before the critic has trained the target value. In this view, the critic loss of 1 target update with 100 gradient update method was lowest since it has trained the 1 target value enough.
+
+---------------------------------------
+## Question 5
+### Run actor-critic with more difficult tasks
+#### Use the best setting from the previous question to run InvertedPendulum and HalfCheetah
+
+![Alt text](./cs285/picture/Q5_InvertedPendulum.png "Inverted Pendulum with Actor Critic")
+![Alt text](./cs285/picture/Q5_HalfCheetah.png.png "Half Cheetah with Actor Critic")
+
+I used 10 target update with 10 gradient update per target update and each envrionment achieved average return of 150 and 1000 as expected.
