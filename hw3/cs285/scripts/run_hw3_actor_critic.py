@@ -42,8 +42,6 @@ class AC_Trainer(object):
         self.params['agent_params'] = agent_params
         self.params['batch_size_initial'] = self.params['batch_size']
 
-        parser.add_argument('--use_wandb', type=int, default=0)
-
         ################
         ## RL TRAINER
         ################
@@ -92,6 +90,8 @@ def main():
     parser.add_argument('--scalar_log_freq', type=int, default=10)
 
     parser.add_argument('--save_params', action='store_true')
+
+    parser.add_argument('--use_wandb', type=int, default=0)
 
     args = parser.parse_args() 
 

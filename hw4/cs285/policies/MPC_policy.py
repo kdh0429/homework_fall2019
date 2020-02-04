@@ -25,6 +25,12 @@ class MPCPolicy(BasePolicy):
         self.low = self.ac_space.low
         self.high = self.ac_space.high
 
+        # PDDM
+        self.action_mean = self.horizon*[self.ac_space.sample()]
+        self.action_variance = np.zeros((self.N, self.horizon, self.ac_dim))
+        self.beta = 0.7
+        self.gamma = 10
+
     def sample_action_sequences(self, num_sequences, horizon):
         # TODO(Q1) uniformly sample trajectories and return an array of
         # dimensions (num_sequences, horizon, self.ac_dim)
@@ -52,20 +58,42 @@ class MPCPolicy(BasePolicy):
             # states for each dynamics model in your ensemble
             ob = np.tile(obs,[self.N,1])
             for hor_idx in range(self.horizon):
-                st1 = time.time()
                 rew, _ = self.env.get_reward(ob, candidate_action_sequences[:,hor_idx,:])
-                st2 = time.time()
-                print("Time 1: ",  st2 - st1)
                 predicted_rewards_ens.append(rew)
                 ob = model.get_prediction(ob, candidate_action_sequences[:,hor_idx,:], self.data_statistics)
-                print("Time 2: ", time.time() - st2)
             # once you have a sequence of predicted states from each model in your
             # ensemble, calculate the reward for each sequence using self.env.get_reward (See files in envs to see how to call this)
 
         # pick the action sequence and return the 1st element of that sequence
         predicted_rewards_ens_total = np.mean(predicted_rewards_ens, axis=0)
         best_index = np.argmax(predicted_rewards_ens_total) #TODO(Q2)
-        print("Idx : ", best_index)
         best_action_sequence = candidate_action_sequences[best_index] #TODO(Q2)
         action_to_take = best_action_sequence[0] # TODO(Q2)
         return action_to_take[None] # the None is for matching expected dimensions
+
+        # # PDDM
+        # update_iter = 10
+        # self.action_mean = self.horizon*[np.zeros_like(self.ac_space.sample())]
+        # self.action_variance = np.zeros((self.N, self.horizon, self.ac_dim))
+        # for itr in range(update_iter):
+        #     # sample 추출                 
+        #     candidate_action_sequences = np.zeros((self.N, self.horizon, self.ac_dim))
+        #     for seq_idx in range(self.N):
+        #         for hor_idx in range(self.horizon):
+        #             if hor_idx > 0:
+        #                 self.action_variance[seq_idx][hor_idx] = self.beta * np.random.normal(0,1) + (1-self.beta) * self.action_variance[seq_idx][hor_idx-1]
+        #             if itr == 0:
+        #                 candidate_action_sequences[seq_idx][hor_idx] = self.ac_space.sample() + self.action_variance[seq_idx][hor_idx]
+        #             else:
+        #                 candidate_action_sequences[seq_idx][hor_idx] = self.action_mean[hor_idx] + self.action_variance[seq_idx][hor_idx]
+
+        #     # mean, variace update
+        #     for model in self.dyn_models:
+        #         ob = np.tile(obs,[self.N,1])
+        #         for hor_idx in range(self.horizon):
+        #             rew, _ = self.env.get_reward(ob, candidate_action_sequences[:,hor_idx,:])
+        #             ob = model.get_prediction(ob, candidate_action_sequences[:,hor_idx,:], self.data_statistics)
+        #             self.action_mean[hor_idx] += np.mean(np.exp(self.gamma*np.array(rew).reshape((self.N,1))) * candidate_action_sequences[:,hor_idx,:] / (sum(np.exp(self.gamma*rew)))*len(self.dyn_models), axis=0)
+
+        # action_to_take = self.action_mean[0] # TODO(Q2)
+        # return action_to_take[None] # the None is for matching expected dimensions

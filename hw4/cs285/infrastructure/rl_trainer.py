@@ -11,13 +11,13 @@ from gym import wrappers
 
 from cs285.infrastructure.utils import *
 from cs285.infrastructure.tf_utils import create_tf_session
-from cs285.infrastructure.logger import Logger
-
 #register all of our envs
 import cs285.envs
 
 from cs285.agents.dqn_agent import DQNAgent
 from cs285.infrastructure.dqn_utils import get_wrapper_by_name
+
+import wandb
 
 # how many rollouts to save as videos to tensorboard
 MAX_NVIDEO = 2
@@ -34,7 +34,6 @@ class RL_Trainer(object):
 
         # Get params, create logger, create TF session
         self.params = params
-        self.logger = Logger(self.params['logdir'])
         self.sess = create_tf_session(self.params['use_gpu'], which_gpu=self.params['which_gpu'])
 
         # Set random seeds
@@ -90,7 +89,12 @@ class RL_Trainer(object):
         else:
             self.fps = 10
 
-            #############
+        if self.params['use_wandb'] == 1:
+            wandb.init(project="cs285_hw4", tensorboard=False)
+            wandb.config.env_name = self.params['env_name']
+            wandb.config.ac_dim = self.params['agent_params']['ac_dim']
+            wandb.config.ob_dim = self.params['agent_params']['ob_dim']
+        #############
         ## AGENT
         #############
 
@@ -123,12 +127,6 @@ class RL_Trainer(object):
 
         for itr in range(n_iter):
             print("\n\n********** Iteration %i ************"%itr)
-
-            # decide if videos should be rendered/logged at this iteration
-            if itr % self.params['video_log_freq'] == 0 and self.params['video_log_freq'] != -1:
-                self.logvideo = True
-            else:
-                self.logvideo = False
 
             # decide if metrics should be logged
             if self.params['scalar_log_freq'] == -1:
@@ -167,7 +165,7 @@ class RL_Trainer(object):
                 self.log_model_predictions(itr, all_losses)
 
             # log/save
-            if self.logvideo or self.logmetrics:
+            if self.logmetrics:
                 # perform logging
                 print('\nBeginning logging procedure...')
                 if isinstance(self.agent, DQNAgent):
@@ -227,7 +225,6 @@ class RL_Trainer(object):
         # TODO: GETTHIS from HW1
         #print('\nTraining agent using sampled data from replay buffer...')
         for train_step in range(self.params['num_agent_train_steps_per_iter']):
-            print("Agent Train Step:", train_step)
 
             # TODO sample some data from the data buffer
             # HINT1: use the agent's sample function
@@ -276,14 +273,9 @@ class RL_Trainer(object):
             print("running time %f" % time_since_start)
             logs["TimeSinceStart"] = time_since_start
 
-        sys.stdout.flush()
+        if self.params['use_wandb'] == 1:
+            wandb.log(logs)
 
-        for key, value in logs.items():
-            print('{} : {}'.format(key, value))
-            self.logger.log_scalar(value, key, self.agent.t)
-        print('Done logging...\n\n')
-
-        self.logger.flush()
 
     def perform_logging(self, itr, paths, eval_policy, train_video_paths, all_losses):
 
@@ -329,13 +321,9 @@ class RL_Trainer(object):
                 self.initial_return = np.mean(train_returns)
             logs["Initial_DataCollection_AverageReturn"] = self.initial_return
 
-            # perform the logging
-            for key, value in logs.items():
-                print('{} : {}'.format(key, value))
-                self.logger.log_scalar(value, key, itr)
-            print('Done logging...\n\n')
+            if self.params['use_wandb'] == 1:
+                wandb.log(logs)
 
-            self.logger.flush()
         print("Finish!")
 
 
@@ -372,6 +360,14 @@ class RL_Trainer(object):
         self.fig.clf()
         plt.plot(all_losses)
         self.fig.savefig(self.params['logdir']+'/itr_'+str(itr)+'_losses.png', dpi=200, bbox_inches='tight')
+
+        if self.params['use_wandb'] == 1:
+            for true_state_val, pred_state_val in zip(true_states,pred_states):
+                log_dict = dict()
+                for i in range(ob_dim):                
+                    log_dict['True state '+str(i)] = true_state_val[i]
+                    log_dict['Predicted state '+str(i)] = pred_state_val[i]
+                wandb.log(log_dict)
 
     def eval_render(self):
         print("Max Episode Length: ", self.params['ep_len'])

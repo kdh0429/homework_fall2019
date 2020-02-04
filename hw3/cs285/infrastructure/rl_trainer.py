@@ -141,7 +141,8 @@ class RL_Trainer(object):
             # train agent (using sampled data from replay buffer)
             loss = self.train_agent()
             # log/save
-            if self.logmetrics and itr%100 == 0:
+            if self.logmetrics:
+            #if self.logmetrics and itr%100 == 0:
                 print("Iteration ",itr)
                 # perform logging
                 print('\nBeginning logging procedure...')

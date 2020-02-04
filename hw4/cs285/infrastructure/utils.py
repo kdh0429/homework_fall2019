@@ -96,7 +96,6 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
         # Note that the rollout can end due to done, or due to max_path_length
         rollout_done = (steps > max_path_length) or done # TODO: GETTHIS from HW1
         terminals.append(rollout_done)
-        print("Steps: ", steps)
         
         if rollout_done: 
             break
@@ -109,7 +108,6 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
     timesteps_this_batch = 0
     paths = []
     while timesteps_this_batch < min_timesteps_per_batch:
-        print("Loop")
         thispath = sample_trajectory(env, policy, max_path_length, render, render_mode)
         paths.append(thispath)
         timesteps_this_batch += get_pathlength(thispath)

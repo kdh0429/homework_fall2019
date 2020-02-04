@@ -48,7 +48,7 @@ class MB_Trainer(object):
             collect_policy = self.rl_trainer.agent.actor,
             eval_policy = self.rl_trainer.agent.actor,
             )
-        self.rl_trainer.eval_render()
+        #self.rl_trainer.eval_render()
 
 
 def main():
@@ -81,6 +81,9 @@ def main():
     parser.add_argument('--video_log_freq', type=int, default=1) #-1 to disable
     parser.add_argument('--scalar_log_freq', type=int, default=1) #-1 to disable
     parser.add_argument('--save_params', action='store_true')
+
+    parser.add_argument('--use_wandb', type=int, default=0)
+    
     args = parser.parse_args() 
 
     # convert to dictionary
