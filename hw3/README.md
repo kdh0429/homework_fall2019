@@ -43,6 +43,6 @@ Both 10 target updates with 10 gradient updates per target update and 1 target u
 #### Use the best setting from the previous question to run InvertedPendulum and HalfCheetah
 
 ![Alt text](./cs285/picture/Q5_InvertedPendulum.png "Inverted Pendulum with Actor Critic")
-![Alt text](./cs285/picture/Q5_HalfCheetah.png.png "Half Cheetah with Actor Critic")
+![Alt text](./cs285/picture/Q5_HalfCheetah.png "Half Cheetah with Actor Critic")
 
 I used 10 target update with 10 gradient update per target update and each envrionment achieved average return of 150 and 1000 as expected.
