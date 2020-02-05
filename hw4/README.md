@@ -10,7 +10,7 @@ Berkeley CS285 HW4
 
 #### - (b) Compare qualitative model prediction plots for the 2 network sizes (runs 1,3)
 ![Alt text](./cs285/pictures/Q1_1x32_500TrainPerIter.png "1x32 Network with 500 Train per Iteration")
-![Alt text](./cs285/picture/Q1_2x250_500TrainPerIter.png "2x250 Network with 500 Train per Iteration")
+![Alt text](./cs285/pictures/Q1_2x250_500TrainPerIter.png "2x250 Network with 500 Train per Iteration")
 
 Size 1x32 and 2x250 neural network for model prediction are compared. Model prediction error of 1x32 network was 1.66 whereas 2x250 network was 0.28. With lareger capacity of network, 2x250 neural network could predict next state more accurate.
 
@@ -51,12 +51,15 @@ With same size of 2x250, It seems obvious that 500 training step per itertation 
 
 • Effect of ensemble size
 ![Alt text](./cs285/pictures/Q4_NumEnsembleEffect.png "Number of Ensemble Network Effect")
+
 The performance increases as the number of ensemble network increases.
 
 • Effect of the number of candidate action sequences
 ![Alt text](./cs285/pictures/Q4_NumActionSequenceEffect.png "Number of Action Sequence Effect")
+
 The performance increases as the number of candidate of action sequences increases.
 
 • Efffect of planning horizon
 ![Alt text](./cs285/pictures/Q4_NumMPC_HorizonEffect.png "Number of Planning Horizon Effect")
+
 It is expected that as the MPC planning horizon increases, the performance should increase. However, as planning horizon increases, the performance gets lower. It seems that since the model has not learned the dynamics thoroughly, the predicted state deviates as the planning horizon increase thus not predicting the reward adequately.
