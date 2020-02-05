@@ -50,16 +50,19 @@ With same size of 2x250, It seems obvious that 500 training step per itertation 
 #### Compare the performance of your MBRL algorithm as a function of three hyperparameters: the number of models in your ensemble, the number of random action sequences considered during each action selection, and the MPC planning horizon.
 
 • Effect of ensemble size
+
 ![Alt text](./cs285/pictures/Q4_NumEnsembleEffect.png "Number of Ensemble Network Effect")
 
-The performance increases as the number of ensemble network increases.
+  The performance increases as the number of ensemble network increases.
 
 • Effect of the number of candidate action sequences
+
 ![Alt text](./cs285/pictures/Q4_NumActionSequenceEffect.png "Number of Action Sequence Effect")
 
-The performance increases as the number of candidate of action sequences increases.
+  The performance increases as the number of candidate of action sequences increases.
 
 • Efffect of planning horizon
+
 ![Alt text](./cs285/pictures/Q4_NumMPC_HorizonEffect.png "Number of Planning Horizon Effect")
 
-It is expected that as the MPC planning horizon increases, the performance should increase. However, as planning horizon increases, the performance gets lower. It seems that since the model has not learned the dynamics thoroughly, the predicted state deviates as the planning horizon increase thus not predicting the reward adequately.
+  It is expected that as the MPC planning horizon increases, the performance should increase. However, as planning horizon increases, the performance gets lower. It seems that since the model has not learned the dynamics thoroughly, the predicted state deviates as the planning horizon increase thus not predicting the reward adequately.
