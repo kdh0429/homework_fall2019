@@ -17,6 +17,8 @@ from multiprocessing import Process
 from exploration import ExemplarExploration, DiscreteExploration, RBFExploration
 from density_model import Exemplar, Histogram, RBF
 
+import wandb
+
 #============================================================================================#
 # Utilities
 #============================================================================================#
@@ -389,6 +391,7 @@ def train_AC(
         dm,
         replay_size,
         sigma,
+        use_wandb
         ########################################################################
         ):
     start = time.time()
@@ -540,14 +543,14 @@ def train_AC(
             elif dm == 'hist' or dm == 'rbf':
                 ### PROBLEM 1
                 ### YOUR CODE HERE
-                raise NotImplementedError
+                exploration.fit_density_model(ob_no)
             else:
                 assert False
 
             # 2. Modify the reward
             ### PROBLEM 1
             ### YOUR CODE HERE
-            raise NotImplementedError
+            re_n = exploration.modify_reward(re_n, ob_no)
 
             print('average state', np.mean(ob_no, axis=0))
             print('average action', np.mean(ac_na, axis=0))
@@ -593,6 +596,32 @@ def train_AC(
         logz.dump_tabular()
         logz.pickle_tf_vars()
 
+        if use_wandb == 1:
+            log_dict = dict()
+            log_dict['Time'] = time.time() - start
+            log_dict["Iteration"] = itr
+            log_dict["AverageReturn"] = np.mean(returns)
+            log_dict["StdReturn"] = np.std(returns)
+            log_dict["MaxReturn"] = np.max(returns)
+            log_dict["MinReturn"] = np.min(returns)
+            log_dict["EpLenMean"] = np.mean(ep_lengths)
+            log_dict["EpLenStd"] = np.std(ep_lengths)
+            #######################################################
+            log_dict["Unmodified Rewards Mean"] = np.mean(old_re_n)
+            log_dict["Unmodified Rewards Std"] = np.mean(old_re_n)
+            log_dict["Modified Rewards Mean"] = np.mean(re_n)
+            log_dict["Modified Rewards Std"] = np.mean(re_n)
+            if dm == 'ex2':
+                log_dict["Log Likelihood Mean"] = np.mean(ll)
+                log_dict["Log Likelihood Std"] = np.std(ll)
+                log_dict["KL Divergence Mean"] = np.mean(kl)
+                log_dict["KL Divergence Std"] = np.std(kl)
+                log_dict["Negative ELBo"] = -elbo
+            ########################################################################
+            log_dict["TimestepsThisBatch"] = timesteps_this_batch
+            log_dict["TimestepsSoFar"] = total_timesteps
+            wandb.log(log_dict)
+
 def main():
     from gym.envs.registration import register
     register(
@@ -630,8 +659,36 @@ def main():
     parser.add_argument('--replay_size', '-rs', type=int, default=int(1e6))
     parser.add_argument('--sigma', '-sig', type=float, default=0.2)
     ########################################################################
+    parser.add_argument('--use_wandb', type=int, default=0)
 
     args = parser.parse_args()
+
+    if args.use_wandb == 1:
+        wandb.init(project="cs285_hw5", tensorboard=False)
+        wandb.config.env_name = args.env_name
+        wandb.config.exp_name = args.env_name
+        wandb.config.render = args.env_name
+        wandb.config.discount = args.discount
+        wandb.config.n_iter = args.n_iter
+        wandb.config.batch_size = args.batch_size
+        wandb.config.ep_len = args.ep_len
+        wandb.config.dont_normalize_advantages = args.dont_normalize_advantages
+        wandb.config.num_target_updates = args.num_target_updates        
+        wandb.config.num_grad_steps_per_target_update = args.num_grad_steps_per_target_update
+        wandb.config.seed = args.seed
+        wandb.config.n_experiments = args.n_experiments        
+        wandb.config.n_layers = args.n_layers
+        wandb.config.size = args.size
+
+        wandb.config.bonus_coeff = args.bonus_coeff
+        wandb.config.density_model = args.density_model
+        wandb.config.kl_weight = args.kl_weight        
+        wandb.config.density_lr = args.density_lr
+        wandb.config.density_train_iters = args.density_train_iters
+        wandb.config.density_batch_size = args.density_batch_size        
+        wandb.config.density_hiddim = args.density_hiddim
+        wandb.config.replay_size = args.replay_size
+        wandb.config.sigma = args.sigma
 
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
@@ -676,7 +733,8 @@ def main():
                 density_hiddim=args.density_hiddim,
                 dm=args.density_model,
                 replay_size=args.replay_size,
-                sigma=args.sigma
+                sigma=args.sigma,
+                use_wandb=args.use_wandb
                 ########################################################################
                 )
 
