@@ -199,15 +199,13 @@ class Exemplar(Density_Model):
         self.encoder1, self.encoder2, self.prior, self.discriminator = self.forward_pass(self.state1, self.state2)
         self.discrim_target = tf.placeholder(shape=[None, 1], name="discrim_target", dtype=tf.float32)
 
-        raise NotImplementedError
         self.log_likelihood = tf.squeeze(self.discriminator.log_prob(self.discrim_target), axis=1)
-        self.likelihood = tf.squeeze(self.discriminator.prob(self.discrim_target), axis=1)
-        self.kl = tf.tfp.distributions.kl_divergence(self.encoder1, self.prior) + tf.tfp.distributions.kl_divergence(self.encoder2, self.prior)
+        self.likelihood = tf.math.exp(self.log_likelihood)
+        self.kl = tfp.distributions.kl_divergence(self.encoder1, self.prior) + tfp.distributions.kl_divergence(self.encoder2, self.prior)
         assert len(self.log_likelihood.shape) == len(self.likelihood.shape) == len(self.kl.shape) == 1
 
-        raise NotImplementedError
-        self.elbo = tf.reduce_mean(self.log_likelihood - self.kl)
-        self.update_op = None
+        self.elbo = tf.reduce_mean(self.log_likelihood - self.kl_weight*self.kl)
+        self.update_op = tf.train.AdamOptimizer(self.learning_rate).minimize(-self.elbo)
 
     def define_placeholders(self):
         state1 = tf.placeholder(shape=[None, self.ob_dim], name="s1", dtype=tf.float32)
@@ -236,7 +234,7 @@ class Exemplar(Density_Model):
             Hint: use build_mlp
         """
         z_mean = build_mlp(state, z_size, scope, n_layers, hid_size)
-        z_logstd = raise NotImplementedError
+        z_logstd = tf.Variable(tf.zeros(z_size))
         return tfp.distributions.MultivariateNormalDiag(loc=z_mean, scale_diag=tf.exp(z_logstd))
 
     def make_prior(self, z_size):
@@ -251,8 +249,8 @@ class Exemplar(Density_Model):
                 prior_mean and prior_logstd are for a standard normal distribution
                     both have dimension z_size
         """
-        prior_mean = z_size*[0] # zero mean
-        prior_logstd = z_size*[0] # 1 standard deviation
+        prior_mean = np.zeros(int(z_size), dtype=np.float32) # zero mean
+        prior_logstd = np.zeros(int(z_size), dtype=np.float32) # 1 standard deviation
         return tfp.distributions.MultivariateNormalDiag(loc=prior_mean, scale_diag=tf.exp(prior_logstd))
 
     def make_discriminator(self, z, output_size, scope, n_layers, hid_size):
@@ -339,7 +337,7 @@ class Exemplar(Density_Model):
         assert state1.ndim == state2.ndim == target.ndim
         assert state1.shape[1] == state2.shape[1] == self.ob_dim
         assert state1.shape[0] == state2.shape[0] == target.shape[0]
-        raise NotImplementedError
+        ll, kl, elbo, _ = self.sess.run([self.log_likelihood, self.kl, self.elbo, self.update_op], feed_dict={self.state1: state1, self.state2:state2, self.discrim_target:target})
         return ll, kl, elbo
 
     def get_likelihood(self, state1, state2):
@@ -360,7 +358,8 @@ class Exemplar(Density_Model):
         assert state1.ndim == state2.ndim
         assert state1.shape[1] == state2.shape[1] == self.ob_dim
         assert state1.shape[0] == state2.shape[0]
-        likelihood = self.sess.run(self.discriminator, feed_dict={self.state1: state1, self.state2: state2})
+        target = np.ones((int(state1.shape[0]), 1))
+        likelihood = self.sess.run(self.likelihood, feed_dict={self.state1: state1, self.state2: state2, self.discrim_target:target})
         return likelihood
 
     def get_prob(self, state):
