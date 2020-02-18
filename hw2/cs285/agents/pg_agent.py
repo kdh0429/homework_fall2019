@@ -153,12 +153,11 @@ class PGAgent(BaseAgent):
         for idx in reversed(range(len(rew_concat))):
             if terminals[idx]:
                 delta = rew_concat[idx] - V[idx]
-                gae[idx] = (1-self.gae_lambda)*delta
+                gae[idx] = delta
                 end_idx = idx
             else:
                 delta = rew_concat[idx] + self.gae_gamma*V[idx+1] - V[idx]
-                delta_coeff = (1-self.gae_lambda) * sum(np.power(self.gae_lambda, np.arange(end_idx-idx+1)))
-                gae[idx] = delta_coeff * delta + self.gae_gamma*self.gae_lambda*gae[idx+1]
+                gae[idx] = delta + self.gae_gamma*self.gae_lambda*gae[idx+1]
         return gae
 
 
